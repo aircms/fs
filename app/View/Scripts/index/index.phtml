@@ -1,0 +1,51 @@
+<?php
+
+use App\Service\Fs\File;
+use App\Service\Fs\Folder;
+
+/** @var Folder[] $folders */
+$folders = $this->items['folders'];
+
+/** @var File[] $files */
+$files = $this->items['files'];
+
+/** @var string $path */
+$path = $this->workingPath;
+?>
+
+<script>currentPath = '<?php echo $path; ?>';</script>
+
+<div class="mt-4 py-2 p-3 border rounded-5 bg-body-tertiary">
+  <?php echo $this->partial('common/breadcrumbs'); ?>
+</div>
+
+<div class="pt-4 row gx-3 d-flex align-items-stretch" data-item-selectable>
+  <?php foreach ($folders as $folder) : ?>
+    <div class="col-2 mb-3" data-item-selectable-item>
+      <?php echo $this->partial('index/folder', ['folder' => $folder]); ?>
+    </div>
+  <?php endforeach; ?>
+  <div class="col-12 mt-3"></div>
+  <?php foreach ($files as $file) : ?>
+    <div class="col-2 mb-3" data-item-selectable-item>
+      <?php echo $this->partial('index/file', ['file' => $file]); ?>
+    </div>
+  <?php endforeach; ?>
+</div>
+
+<template data-admin-contextmenu-remove-all-template>
+  <ul class="dropdown-menu position-absolute top-0 left-0 m-0 shadow-5-strong" data-admin-contextmenu-remove-all>
+    <li>
+      <a class="dropdown-item" role="button" onclick="removeSelected()">
+        <i class="fas fa-trash me-1"></i> Remove selected?
+      </a>
+    </li>
+    <li><hr class="dropdown-divider mt-0"/></li>
+    <li class="px-2 pb-2">
+      <div class="d-flex justify-content-between small">
+        <div class="text-muted">Size:</div>
+        <div class="text-muted fw-bold" data-admin-contextmenu-remove-all-size></div>
+      </div>
+    </li>
+  </ul>
+</template>

@@ -1,0 +1,49 @@
+<?php
+
+use App\Service\Fs;
+use App\Service\Fs\Folder;
+
+$workingPath = $this->workingPath;
+
+/** @var array $path */
+$path = array_filter(explode('/', $workingPath));
+
+/** @var Folder $workingPathFolder */
+$workingPathFolder = Fs::info($workingPath);
+
+$workingFolderItemsCount = $workingPathFolder->getItemsCount();
+$size = $workingPathFolder->getSize();
+?>
+<nav aria-label="breadcrumb" class="d-flex justify-content-between align-items-center">
+  <ol class="breadcrumb m-0 user-select-none">
+    <li class="breadcrumb-item">
+      <a onclick="openFolder('<?php echo Fs::ROOT; ?>')" role="button">
+        <i class="fa fa-home"></i>&nbsp;&nbsp;<b>Home</b>
+      </a>
+    </li>
+    <?php foreach ($path as $index => $item) : ?>
+      <?php if ($index < count($path)) : ?>
+        <li class="breadcrumb-item">
+          <a onclick="openFolder('<?php echo Fs::ROOT . implode('/', array_slice($path, 0, $index)); ?>')" role="button">
+            <?php echo $item; ?>
+          </a>
+        </li>
+      <?php else: ?>
+        <li class="breadcrumb-item active" aria-current="page">
+          <?php echo $item; ?>
+        </li>
+      <?php endif; ?>
+    <?php endforeach; ?>
+  </ol>
+  <div class="small">
+    <span class="badge badge-primary">
+      <?php echo $size; ?>
+    </span>
+    <span class="badge badge-primary">
+    Folders: <?php echo $workingFolderItemsCount['folders']; ?>
+    </span>
+    <span class="badge badge-primary">
+      Files: <?php echo $workingFolderItemsCount['files']; ?>
+    </span>
+  </div>
+</nav>

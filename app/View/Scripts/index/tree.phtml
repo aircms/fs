@@ -1,0 +1,52 @@
+<?php
+
+use App\Service\Fs\Folder;
+
+/** @var Folder[] $tree */
+$tree = $this->tree;
+?>
+
+<div class="ms-3 user-select-none py-2">
+  <?php foreach ($tree as $folder) : ?>
+    <?php $counts = $folder->getItemsCount(); ?>
+
+    <div class="py-2" data-folder-container>
+      <div class="d-flex justify-content-between align-items-start tree-folder"
+           title="<?php echo $folder->name; ?>"
+           role="button">
+
+        <div class="w-100 text-truncate"
+          <?php if ($counts['folders']) : ?>
+            ondblclick="tree('<?php echo $folder->path; ?>', this);"
+          <?php else: ?>
+            ondblclick="closeTree(); openFolder('<?php echo $folder->path; ?>')"
+          <?php endif; ?>>
+
+          <?php if ($counts['folders']) : ?>
+            <i class="fas fa-chevron-right me-1 pt-1 small tree-arrow-icon d-inline-block text-center transition-1" data-tree-arrow-icon></i>
+          <?php else: ?>
+            <i class="me-1 pt-1 small tree-arrow-icon d-inline-block" data-tree-arrow-icon></i>
+          <?php endif; ?>
+
+          <i class="fas fa-folder me-2 pt-1 text-warning tree-folder-icon"
+            <?php if ($counts['folders']) : ?>
+              ondblclick="tree('<?php echo $folder->path; ?>');"
+            <?php endif; ?>
+             data-tree-folder-icon></i>
+          <?php echo $folder->name; ?>
+        </div>
+
+        <span class="bg-body rounded-4 text-muted p-2 py-1 mx-3 mt-1 tree-meta-info">
+          <span class="opacity-50"><?php echo $folder->getSize(false); ?>, </span>
+          <span class="opacity-50"><?php echo $counts['folders']; ?> d, </span>
+          <span class="opacity-50"><?php echo $counts['files']; ?> f</span>
+        </span>
+
+        <button class="btn btn-primary px-3 btn-sm" onclick="closeTree(); openFolder('<?php echo $folder->path; ?>')">
+          <i class="fas fa-magnifying-glass"></i>
+        </button>
+      </div>
+      <div data-sub-folder></div>
+    </div>
+  <?php endforeach; ?>
+</div>

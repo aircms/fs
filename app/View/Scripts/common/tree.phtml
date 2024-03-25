@@ -1,0 +1,9 @@
+<div class="tree position-absolute top-0 start-0 vh-100 vw-100 overflow-hidden bg-blur-5 transition-2 d-none" data-tree>
+  <div class="position-absolute start-0 top-0 end-0 bottom-0" onclick="closeTree()"></div>
+  <div
+    class="tree-body position-absolute top-0 bg-body-tertiary shadow-5-strong pt-2 h-100 transition-2 overflow-auto ps-0 pe-3"
+    role="button"
+    data-tree-content>
+    <?php echo $this->partial('index/tree'); ?>
+  </div>
+</div>
