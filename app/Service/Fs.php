@@ -134,8 +134,10 @@ class Fs
     $config = Front::getInstance()->getConfig()['fs'];
     $file = Fs::info($path);
 
-    unlink($config['path'] . $file->getThumbnailPath());
-    unlink($file->getThumbnailPath());
+    if ($file->hasThumbnail()) {
+      unlink($config['path'] . $file->getThumbnailPath());
+    }
+    unlink($file->realPath);
   }
 
   /**
