@@ -257,8 +257,10 @@ const removeSelected = () => {
     paths.push($(e).data('admin-item-path'));
   });
 
+  $('.ui-selected').removeClass('ui-selected');
+  $('body > [data-admin-contextmenu-remove-all]').remove();
+
   modal.question('Remove all?').then(() => {
-    $('body > [data-admin-contextmenu-remove-all]').remove();
     $.post('/index/removeMultiple', {paths}, () => {
       openFolder(currentPath);
     });
