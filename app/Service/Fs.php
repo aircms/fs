@@ -8,6 +8,8 @@ use Air\Core\Exception\ClassWasNotFound;
 use Air\Core\Front;
 use App\Service\Fs\File;
 use App\Service\Fs\Folder;
+use ImagickDrawException;
+use ImagickException;
 use Mimey\MimeTypes;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -21,14 +23,14 @@ class Fs
   /**
    * @param string $name
    * @param string|null $path
+   * @param bool $recursive
    * @return Folder
    * @throws ClassWasNotFound
    */
-  public static function createFolder(string $name, ?string $path = self::ROOT): Folder
+  public static function createFolder(string $name, ?string $path = self::ROOT, bool $recursive = false): Folder
   {
     $config = Front::getInstance()->getConfig();
-    mkdir(realpath($config['fs']['path']) . $path . '/' . $name);
-
+    mkdir(realpath($config['fs']['path']) . $path . '/' . $name, 0755, $recursive);
     return Fs::info($path . '/' . $name);
   }
 
@@ -58,13 +60,11 @@ class Fs
   }
 
   /**
-   * @param string $path
    * @return array
-   * @throws ClassWasNotFound
    */
-  public static function uploadFile(string $path): array
+  private static function mapFiles(): array
   {
-    $files = array_map(function ($name, $type, $tmpName, $error, $size) {
+    return array_map(function ($name, $type, $tmpName, $error, $size) {
       return [
         'name' => $name,
         'type' => $type,
@@ -79,6 +79,16 @@ class Fs
       $_FILES['files']['error'],
       $_FILES['files']['size']
     );
+  }
+
+  /**
+   * @param string $path
+   * @return array
+   * @throws ClassWasNotFound
+   */
+  public static function uploadFile(string $path): array
+  {
+    $files = self::mapFiles();
 
     $errors = [];
 
@@ -99,20 +109,52 @@ class Fs
   }
 
   /**
+   * @param string $path
+   * @return File[]
+   * @throws ClassWasNotFound
+   */
+  public static function uploadFileApi(string $path): array
+  {
+    $config = Front::getInstance()->getConfig();
+    $files = [];
+
+    foreach (self::mapFiles() as $file) {
+      try {
+        $fileNameParts = explode('.', $file['name']);
+        $fileName = md5(microtime()) . '.' . array_pop($fileNameParts);
+
+        copy($file['tmpName'], realpath($config['fs']['path']) . $path . '/' . $fileName);
+
+        $files[] = Fs::info($path . '/' . $fileName);
+
+      } catch (Throwable) {
+      }
+    }
+    return $files;
+  }
+
+  /**
    * @param string $url
    * @param string|null $path
+   * @param string|null $name
    * @return File
    * @throws ClassWasNotFound
    */
-  public static function uploadByUrl(string $url, ?string $path = self::ROOT): File
+  public static function uploadByUrl(string $url, ?string $path = self::ROOT, ?string $name = null): File
   {
-    $name = md5(microtime());
+    if (!$name) {
+      $name = md5(microtime());
+    }
 
     $file = file_get_contents($url, false, stream_context_create(['ssl' => ['ciphers' => 'DEFAULT:!DH']]));
 
     $config = Front::getInstance()->getConfig();
 
     $filePath = realpath($config['fs']['path']) . $path . '/';
+
+    if (!file_exists($filePath)) {
+      self::createFolder($path);
+    }
 
     file_put_contents($filePath . $name, $file);
 
@@ -286,5 +328,41 @@ class Fs
       return new File($info);
     }
     return new Folder($info);
+  }
+
+  /**
+   * @param string $folder
+   * @param string $fileName
+   * @param string $title
+   * @param string $backColor
+   * @param string $frontColor
+   * @return File
+   * @throws ClassWasNotFound
+   * @throws ImagickDrawException
+   * @throws ImagickException
+   */
+  public static function annotation(
+    string $folder,
+    string $fileName,
+    string $title,
+    string $backColor,
+    string $frontColor
+  ): File
+  {
+    $im = new \Imagick();
+    $im->newImage(500, 500, '#' . $backColor);
+
+    $textDraw = new \ImagickDraw();
+    $textDraw->setFontSize(70);
+    $textDraw->setFillColor('#' . $frontColor);
+    $textDraw->setGravity(\Imagick::ALIGN_CENTER);
+    $im->annotateImage($textDraw, 0, 225, 0, $title);
+    $im->setImageFormat("png");
+
+    $config = Front::getInstance()->getConfig()['fs'];
+    $im->writeImage($config['path'] . '/' . $folder . '/' . $fileName . '.png');
+    $im->destroy();
+
+    return self::info('/' . $folder . '/' . $fileName . '.png');
   }
 }

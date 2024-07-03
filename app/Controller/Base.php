@@ -32,13 +32,14 @@ class Base extends Controller
       throw new Exception('Not authorized');
     }
 
-    $this->getView()->assign('theme', $this->getParam('theme'));
-    $this->getView()->assign('select', $this->getParam('select'));
+    $lang = $this->getParam('lang') ?? Cookie::get('lang') ?? 'en';
 
-    $lang = $this->getParam('lang') ?? 'en';
+    Locale::setLang($lang);
+    Cookie::set('lang', $lang);
 
     $this->getView()->assign('lang', $lang);
-    $this->getView()->assign('langs', Locale::phrases($lang));
+    $this->getView()->assign('theme', $this->getParam('theme'));
+    $this->getView()->assign('select', $this->getParam('select'));
 
     if ($this->getRequest()->isAjax()) {
       $this->getView()->setLayoutEnabled(false);

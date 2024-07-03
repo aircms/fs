@@ -9,6 +9,8 @@ use Air\Core\Exception\ClassWasNotFound;
 use Air\Core\Exception\ControllerClassWasNotFound;
 use Air\Core\Front;
 use App\Service\ImageResize;
+use Exception;
+use Throwable;
 
 class Error extends ErrorController
 {
@@ -70,12 +72,12 @@ class Error extends ErrorController
 
       try {
         $width = (int)explode('x', $ext[0])[0];
-      } catch (\Exception) {
+      } catch (Exception) {
       }
 
       try {
         $height = (int)explode('x', $ext[0])[1];
-      } catch (\Exception) {
+      } catch (Exception) {
       }
 
       $image = new ImageResize($source);
@@ -89,7 +91,7 @@ class Error extends ErrorController
       $image->save($dest);
       $this->redirect($_SERVER['REQUEST_URI']);
 
-    } catch (\Throwable) {
+    } catch (Throwable) {
     }
   }
 }

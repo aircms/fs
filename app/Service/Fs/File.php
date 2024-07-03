@@ -6,6 +6,7 @@ namespace App\Service\Fs;
 
 use Air\Core\Exception\ClassWasNotFound;
 use Air\Core\Front;
+use App\Service\Fs;
 use FFMpeg\Coordinate\TimeCode;
 use FFMpeg\FFMpeg;
 use Imagick;
@@ -82,6 +83,11 @@ class File extends AbstractItem
       return '/' . $config['folder'] . $thumbnailPath;
     }
 
+    try {
+      Fs::createFolder('/' . $config['thumbnails'], null, true);
+    } catch (Throwable) {
+    }
+
     $im = new Imagick();
 
     try {
@@ -140,12 +146,12 @@ class File extends AbstractItem
   }
 
   /**
-   * @return string
+   * @return array
    * @throws ClassWasNotFound
    */
-  public function toJSON(): string
+  public function toArray(): array
   {
-    $data = [
+    return [
       'size' => $this->size,
       'mime' => $this->mime,
       'time' => $this->time,
@@ -154,7 +160,14 @@ class File extends AbstractItem
       'thumbnail' => $this->getThumbnail(),
       'src' => '/' . Front::getInstance()->getConfig()['fs']['folder'] . $this->path,
     ];
+  }
 
-    return htmlspecialchars(json_encode($data), ENT_QUOTES, 'UTF-8');
+  /**
+   * @return string
+   * @throws ClassWasNotFound
+   */
+  public function toJSON(): string
+  {
+    return htmlspecialchars(json_encode($this->toArray()), ENT_QUOTES, 'UTF-8');
   }
 }

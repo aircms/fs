@@ -4,46 +4,52 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use Air\Core\Exception\ClassWasNotFound;
 use Air\Core\Front;
 
 class Locale
 {
   /**
-   * @var array
+   * @var array|null
    */
   public static ?array $keys = null;
 
   /**
+   * @var string|null
+   */
+  public static ?string $lang = null;
+
+  /**
+   * @param string $lang
+   * @return void
+   */
+  public static function setLang(string $lang): void
+  {
+    self::$lang = $lang;
+  }
+
+  /**
    * @param string $key
    * @return string
-   * @throws \Air\Core\Exception\ClassWasNotFound
+   * @throws ClassWasNotFound
    */
   public static function t(string $key): string
   {
     if (!self::$keys) {
-      $filename = __DIR__ . '/../../locale/ua.json';
-      self::$keys = json_decode(file_get_contents(realpath($filename)), true) ?? [];
+      self::$keys = Front::getInstance()->getConfig()['locale'][self::$lang];
     }
-
     if (!isset(self::$keys[$key])) {
-      self::$keys[$key] = $key;
-
-      $filename = __DIR__ . '/../../locale/ua.json';
-      file_put_contents($filename, json_encode(self::$keys, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
-      $filename = __DIR__ . '/../../locale/en.json';
-      file_put_contents($filename, json_encode(self::$keys, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+      return $key;
     }
     return self::$keys[$key];
   }
 
   /**
-   * @param string $lang
    * @return array
+   * @throws ClassWasNotFound
    */
-  public static function phrases(string $lang): array
+  public static function phrases(): array
   {
-    $filename = __DIR__ . '/../../locale/' . $lang . '.json';
-    return json_decode(file_get_contents(realpath($filename)), true) ?? [];
+    return Front::getInstance()->getConfig()['locale'][self::$lang];
   }
 }

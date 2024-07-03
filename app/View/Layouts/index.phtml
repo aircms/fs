@@ -40,7 +40,7 @@ $lang = $this->lang;
     'assets/custom.js',
   ]); ?>
   <script>
-    const locale = (key) => (<?php echo json_encode($this->langs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE); ?>)[key] || key;
+    const locale = (key) => (<?php echo json_encode(\App\Service\Locale::phrases(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); ?>)[key] || key;
   </script>
 </head>
 <body data-mdb-theme="<?php echo $theme; ?>" data-file-mode-select="<?php echo $select; ?>">
