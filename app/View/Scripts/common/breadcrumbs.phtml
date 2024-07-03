@@ -18,13 +18,14 @@ $size = $workingPathFolder->getSize();
   <ol class="breadcrumb m-0 user-select-none">
     <li class="breadcrumb-item">
       <a onclick="openFolder('<?php echo Fs::ROOT; ?>')" role="button">
-        <i class="fa fa-home"></i>&nbsp;&nbsp;<b>Home</b>
+        <i class="fa fa-home"></i>&nbsp;&nbsp;<b><?php echo \App\Service\Locale::t('Home'); ?></b>
       </a>
     </li>
     <?php foreach ($path as $index => $item) : ?>
       <?php if ($index < count($path)) : ?>
         <li class="breadcrumb-item">
-          <a onclick="openFolder('<?php echo Fs::ROOT . implode('/', array_slice($path, 0, $index)); ?>')" role="button">
+          <a onclick="openFolder('<?php echo Fs::ROOT . implode('/', array_slice($path, 0, $index)); ?>')"
+             role="button">
             <?php echo $item; ?>
           </a>
         </li>
@@ -40,10 +41,10 @@ $size = $workingPathFolder->getSize();
       <?php echo $size; ?>
     </span>
     <span class="badge badge-primary">
-    Folders: <?php echo $workingFolderItemsCount['folders']; ?>
+      <?php echo \App\Service\Locale::t('Folders'); ?>: <?php echo $workingFolderItemsCount['folders']; ?>
     </span>
     <span class="badge badge-primary">
-      Files: <?php echo $workingFolderItemsCount['files']; ?>
+      <?php echo \App\Service\Locale::t('Files'); ?>: <?php echo $workingFolderItemsCount['files']; ?>
     </span>
   </div>
 </nav>

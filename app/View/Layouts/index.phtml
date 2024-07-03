@@ -3,9 +3,12 @@ $theme = $this->theme ?? 'dark';
 
 /** @var string $select */
 $select = $this->select;
+
+/** @var string $lang */
+$lang = $this->lang;
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo $lang; ?>">
 <head>
   <meta charset="utf-8"/>
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -36,6 +39,9 @@ $select = $this->select;
     'assets/custom.css',
     'assets/custom.js',
   ]); ?>
+  <script>
+    const locale = (key) => (<?php echo json_encode($this->langs, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE); ?>)[key] || key;
+  </script>
 </head>
 <body data-mdb-theme="<?php echo $theme; ?>" data-file-mode-select="<?php echo $select; ?>">
 <main class="vh-100 vw-100 p-3 pb-0 overflow-hidden d-flex flex-column">

@@ -23,12 +23,12 @@ $folder = $this->folder;
           class="btn btn-danger"
           onclick="removeFolder('<?php echo $folder->path; ?>', true)"
           data-mdb-ripple-init>
-    Remove?
+    <?php echo \App\Service\Locale::t('Remove?'); ?>
   </button>
   <button type="button"
           class="btn btn-primary"
           data-mdb-dismiss="modal"
           data-mdb-ripple-init>
-    No
+    <?php echo \App\Service\Locale::t('No'); ?>
   </button>
 </div>

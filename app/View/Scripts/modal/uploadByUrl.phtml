@@ -9,21 +9,21 @@
       </div>
       <div class="form-outline" data-mdb-input-init>
         <input type="text" id="folderName" class="form-control" data-url/>
-        <label class="form-label" for="folderName">Resource URL</label>
+        <label class="form-label" for="folderName"><?php echo \App\Service\Locale::t('Resource URL'); ?></label>
       </div>
     </div>
   </div>
   <div class="modal-footer">
     <div class="row gx-0 w-100">
-      <div class="col-6 error-message text-danger text-break" data-error>
+      <div class="col-4 error-message text-danger text-break" data-error>
       </div>
-      <div class="col-6 text-end">
+      <div class="col-8 text-end">
         <button type="submit" class="btn btn-primary" data-mdb-ripple-init>
           <i class="fas fa-upload me-1"></i>
-          Upload
+          <?php echo \App\Service\Locale::t('Upload'); ?>
         </button>
         <a role="button" class="btn btn-secondary" data-mdb-dismiss="modal" data-mdb-ripple-init>
-          Cancel
+          <?php echo \App\Service\Locale::t('Cancel'); ?>
         </a>
       </div>
     </div>

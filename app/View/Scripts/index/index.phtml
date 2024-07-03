@@ -37,13 +37,13 @@ $path = $this->workingPath;
   <ul class="dropdown-menu position-absolute top-0 left-0 m-0 shadow-5-strong" data-admin-contextmenu-remove-all>
     <li>
       <a class="dropdown-item" role="button" onclick="removeSelected()">
-        <i class="fas fa-trash me-1"></i> Remove selected?
+        <i class="fas fa-trash me-1"></i> <?php echo \App\Service\Locale::t('Remove selected?'); ?>
       </a>
     </li>
     <li><hr class="dropdown-divider mt-0"/></li>
     <li class="px-2 pb-2">
       <div class="d-flex justify-content-between small">
-        <div class="text-muted">Size:</div>
+        <div class="text-muted"><?php echo \App\Service\Locale::t('Size'); ?>:</div>
         <div class="text-muted fw-bold" data-admin-contextmenu-remove-all-size></div>
       </div>
     </li>

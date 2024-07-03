@@ -28,7 +28,7 @@ $size = $folder->getSize();
       data-admin-contextmenu-target="<?php echo $id; ?>">
     <li>
       <a class="dropdown-item" role="button" onclick="removeFolder('<?php echo $folder->path; ?>')">
-        <i class="fas fa-trash me-1"></i> Remove?
+        <i class="fas fa-trash me-1"></i> <?php echo \App\Service\Locale::t('Remove?'); ?>
       </a>
     </li>
     <li>
@@ -36,15 +36,15 @@ $size = $folder->getSize();
     </li>
     <li class="px-2 pb-2">
       <div class="d-flex justify-content-between small">
-        <div class="text-muted">Size:</div>
+        <div class="text-muted"><?php echo \App\Service\Locale::t('Size'); ?>:</div>
         <div class="text-muted fw-bold"><?php echo $size; ?></div>
       </div>
       <div class="d-flex justify-content-between small">
-        <div class="text-muted">Folders:</div>
+        <div class="text-muted"><?php echo \App\Service\Locale::t('Folders'); ?>:</div>
         <div class="text-muted fw-bold"><?php echo $itemsCount['folders']; ?></div>
       </div>
       <div class="d-flex justify-content-between small">
-        <div class="text-muted">Files:</div>
+        <div class="text-muted"><?php echo \App\Service\Locale::t('Files'); ?>:</div>
         <div class="text-muted fw-bold"><?php echo $itemsCount['files']; ?></div>
       </div>
     </li>

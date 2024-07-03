@@ -63,13 +63,13 @@ $(document).ready(() => {
 
 const viewFile = (path) => {
   $.post('/modal/view', {path}, (content) => {
-    modal.html('Preview', content, {size: 'xLarge'});
+    modal.html(locale('Preview'), content, {size: 'xLarge'});
   });
 };
 
 const uploadFromComputer = () => {
   $.post('/modal/uploadFromComputer', {path: currentPath}, (modalHtml) => {
-    modal.html('Upload from computer', modalHtml);
+    modal.html(locale('Upload from computer'), modalHtml);
   });
 };
 
@@ -149,7 +149,7 @@ const removeFile = (path, force) => {
     });
   } else {
     $.post('/modal/remove', {path}, (modalHtml) => {
-      modal.html('Remove file?', modalHtml);
+      modal.html(locale('Remove file?'), modalHtml);
     });
   }
 };
@@ -163,7 +163,7 @@ const removeFolder = (path, force) => {
     });
   } else {
     $.post('/modal/removeFolder', {path}, (modalHtml) => {
-      modal.html('Remove folder?', modalHtml);
+      modal.html(locale('Remove folder?'), modalHtml);
     });
   }
 };
@@ -179,7 +179,7 @@ const createFolder = (force) => {
       });
   } else {
     $.post('/modal/createFolder', {path: currentPath}, (modalHtml) => {
-      modal.html('Create folder', modalHtml);
+      modal.html(locale('Create folder'), modalHtml);
       setTimeout(() => $('[data-foldername]').focus(), 500);
     });
   }
@@ -197,7 +197,7 @@ const uploadByUrl = (force) => {
       });
   } else {
     $.post('/modal/uploadByUrl', {path: currentPath}, (modalHtml) => {
-      modal.html('Upload by URL', modalHtml);
+      modal.html(locale('Upload by URL'), modalHtml);
     });
   }
 };

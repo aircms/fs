@@ -3,22 +3,22 @@
      role="button"
      data-mdb-dropdown-init
      data-mdb-ripple-init>
-    <i class="fas fa-plus"></i> Create
+    <i class="fas fa-plus"></i> <?php echo \App\Service\Locale::t('Create'); ?>
   </a>
   <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
     <li>
       <a class="dropdown-item" role="button" onclick="createFolder()">
-        <i class="fas fa-folder me-1"></i> Folder
+        <i class="fas fa-folder me-1"></i> <?php echo \App\Service\Locale::t('Folder'); ?>
       </a>
     </li>
     <li>
       <a class="dropdown-item" role="button" onclick="uploadFromComputer()">
-        <i class="fas fa-desktop me-1"></i> From computer
+        <i class="fas fa-desktop me-1"></i> <?php echo \App\Service\Locale::t('From computer'); ?>
       </a>
     </li>
     <li>
       <a class="dropdown-item" role="button" onclick="uploadByUrl()">
-        <i class="fas fa-link me-1"></i> By URL
+        <i class="fas fa-link me-1"></i> <?php echo \App\Service\Locale::t('By URL'); ?>
       </a>
     </li>
   </ul>

@@ -19,5 +19,5 @@ return [
     'host' => $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'],
     'thumbnails' => '__thumbnails'
   ],
-  'key' => getenv('AIR_FS_KEY')
+  'key' => 'TheBlueCurasaoInAirCMSOfTheNight'
 ];

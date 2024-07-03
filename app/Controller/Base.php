@@ -8,6 +8,7 @@ use Air\Cookie;
 use Air\Core\Controller;
 use Air\Core\Exception\ClassWasNotFound;
 use Air\Core\Front;
+use App\Service\Locale;
 use Exception;
 
 class Base extends Controller
@@ -33,6 +34,11 @@ class Base extends Controller
 
     $this->getView()->assign('theme', $this->getParam('theme'));
     $this->getView()->assign('select', $this->getParam('select'));
+
+    $lang = $this->getParam('lang') ?? 'en';
+
+    $this->getView()->assign('lang', $lang);
+    $this->getView()->assign('langs', Locale::phrases($lang));
 
     if ($this->getRequest()->isAjax()) {
       $this->getView()->setLayoutEnabled(false);
