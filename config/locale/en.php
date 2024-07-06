@@ -19,5 +19,5 @@ return [
   "Upload" => "Upload",
   "Upload from computer" => "Upload from computer",
   "Create folder" => "Create folder",
-  "Upload by URL" => "Upload by URL"
+  "Upload by URL" => "Upload by URL",
 ];

@@ -7,6 +7,7 @@ namespace App\Controller;
 use Air\Core\Exception\ClassWasNotFound;
 use App\Service\Fs;
 use Exception;
+use Throwable;
 
 class Index extends Base
 {
@@ -32,7 +33,7 @@ class Index extends Base
       $folder = Fs::createFolder($name, $path);
       return ['path' => $folder->path];
 
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
       $this->getResponse()->setStatusCode(400);
       return ['message' => $e->getMessage()];
     }

@@ -69,10 +69,18 @@ $file = $this->file;
       <?php echo \App\Service\Locale::t('Remove?'); ?>
     </button>
     <button type="button"
-            class="btn btn-primary"
+            class="btn btn-primary me-2"
             data-mdb-dismiss="modal"
             data-mdb-ripple-init>
       <?php echo \App\Service\Locale::t('Done'); ?>
+    </button>
+    <button type="button"
+            class="btn btn-secondary"
+            onclick="selectFile(<?php echo $file->toJSON(); ?>)""
+            data-file-mode-select-item
+            data-mdb-ripple-init>
+      <i class="fas fa-check me-1"></i>
+      <?php echo \App\Service\Locale::t('Select'); ?>
     </button>
   </div>
 </div>
