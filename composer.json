@@ -20,6 +20,11 @@
     "ext-gd": "*",
     "ext-imagick": "*"
   },
+  "autoload": {
+    "files": [
+      "vendor/aircms/core/src/Air/View/Shorts/shorts.php"
+    ]
+  },
   "scripts": {
     "assets": [
       "ln -sfn ../vendor/aircms/core/assets www/air"
