@@ -12,7 +12,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/aircms/core.git",
-                "reference": "9e43e73abf579de77a83c9092f81d26b3a09650b"
+                "reference": "6d7f51b8209bcb896dbcc4ab7a38d96644329561"
             },
             "require": {
                 "ext-curl": "*",
@@ -34,7 +34,7 @@
                     "email": "execrot@airkod.com"
                 }
             ],
-            "time": "2024-07-03T05:29:02+00:00"
+            "time": "2024-07-09T12:51:17+00:00"
         },
         {
             "name": "evenement/evenement",
