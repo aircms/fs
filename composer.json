@@ -13,12 +13,12 @@
     }
   ],
   "require": {
-    "aircms/core": "dev-main",
-    "ralouphie/mimey": "*",
-    "php-ffmpeg/php-ffmpeg": "*",
     "ext-fileinfo": "*",
     "ext-gd": "*",
-    "ext-imagick": "*"
+    "ext-imagick": "*",
+    "aircms/core": "dev-main",
+    "ralouphie/mimey": "*",
+    "php-ffmpeg/php-ffmpeg": "*"
   },
   "autoload": {
     "files": [
