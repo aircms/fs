@@ -104,4 +104,18 @@ class Api extends Base
   {
     return Fs::annotation($folder, $fileName, $title, $backColor, $frontColor)->toArray();
   }
+
+  /**
+   * @param array $paths
+   * @return array
+   * @throws ClassWasNotFound
+   */
+  public function info(array $paths): array
+  {
+    $files = [];
+    foreach ($paths as $path) {
+      $files[] = Fs::info($path)->toArray();
+    }
+    return $files;
+  }
 }
