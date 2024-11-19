@@ -18,7 +18,7 @@ use Throwable;
 
 class Fs
 {
-  const  ROOT = '/';
+  const string ROOT = '/';
 
   /**
    * @param string $name

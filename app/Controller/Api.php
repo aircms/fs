@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Air\Core\Exception\ClassWasNotFound;
-use App\Service\Fs\File;
 use App\Service\Fs;
+use App\Service\Fs\File;
 use ImagickDrawException;
 use ImagickException;
+use Throwable;
 
 class Api extends Base
 {
@@ -25,18 +26,6 @@ class Api extends Base
   }
 
   /**
-   * @param string $name
-   * @param string $path
-   * @param bool $recursive
-   * @return void
-   * @throws ClassWasNotFound
-   */
-  public function createFolder(string $name, string $path, bool $recursive = false): void
-  {
-    Fs::createFolder($name, $path, $recursive);
-  }
-
-  /**
    * @param string $path
    * @return void
    * @throws ClassWasNotFound
@@ -45,6 +34,20 @@ class Api extends Base
   {
     $folder = Fs::info($path);
     Fs::deleteFolder($folder->realPath);
+  }
+
+  /**
+   * @param array $paths
+   * @return array
+   * @throws ClassWasNotFound
+   */
+  public function info(array $paths): array
+  {
+    $files = [];
+    foreach ($paths as $path) {
+      $files[] = Fs::info($path)->toArray();
+    }
+    return $files;
   }
 
   /**
@@ -76,11 +79,24 @@ class Api extends Base
    */
   public function uploadFile(string $path): array
   {
+    Fs::createFolder($path, Fs::ROOT, true);
     $files = [];
     foreach (Fs::uploadFileApi($path) as $file) {
       $files[] = $file->toArray();
     }
     return $files;
+  }
+
+  /**
+   * @param string $name
+   * @param string $path
+   * @param bool $recursive
+   * @return void
+   * @throws ClassWasNotFound
+   */
+  public function createFolder(string $name, string $path, bool $recursive = false): void
+  {
+    Fs::createFolder($name, $path, $recursive);
   }
 
   /**
@@ -91,9 +107,15 @@ class Api extends Base
    */
   public function uploadDatum(string $path, array $datum): array
   {
+    Fs::createFolder($path, Fs::ROOT, true);
+
     $files = [];
-    foreach ($datum as $data) {
-      $files[] = Fs::uploadData($path, $data)->toArray();
+    foreach ($datum as $index => $data) {
+      try {
+        $files[$index] = Fs::uploadData($path, $data)->toArray();
+      } catch (Throwable) {
+
+      }
     }
     return $files;
   }
@@ -118,19 +140,5 @@ class Api extends Base
   ): array
   {
     return Fs::annotation($folder, $fileName, $title, $backColor, $frontColor)->toArray();
-  }
-
-  /**
-   * @param array $paths
-   * @return array
-   * @throws ClassWasNotFound
-   */
-  public function info(array $paths): array
-  {
-    $files = [];
-    foreach ($paths as $path) {
-      $files[] = Fs::info($path)->toArray();
-    }
-    return $files;
   }
 }

@@ -41,27 +41,6 @@ class Index extends Base
 
   /**
    * @param string $path
-   * @return void
-   * @throws ClassWasNotFound
-   */
-  public function deleteFolder(string $path): void
-  {
-    $folder = Fs::info($path);
-    Fs::deleteFolder($folder->realPath);
-  }
-
-  /**
-   * @param string $path
-   * @return void
-   * @throws ClassWasNotFound
-   */
-  public function deleteFile(string $path): void
-  {
-    Fs::deleteFile($path);
-  }
-
-  /**
-   * @param string $path
    * @return array
    * @throws ClassWasNotFound
    */
@@ -144,5 +123,26 @@ class Index extends Base
         Fs::deleteFile($path);
       }
     }
+  }
+
+  /**
+   * @param string $path
+   * @return void
+   * @throws ClassWasNotFound
+   */
+  public function deleteFolder(string $path): void
+  {
+    $folder = Fs::info($path);
+    Fs::deleteFolder($folder->realPath);
+  }
+
+  /**
+   * @param string $path
+   * @return void
+   * @throws ClassWasNotFound
+   */
+  public function deleteFile(string $path): void
+  {
+    Fs::deleteFile($path);
   }
 }
