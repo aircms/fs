@@ -134,6 +134,37 @@ class Fs
   }
 
   /**
+   * @param string $path
+   * @param array $data
+   * @return File
+   * @throws ClassWasNotFound
+   */
+  public static function uploadData(string $path, array $data): File
+  {
+    $config = Front::getInstance()->getConfig();
+
+    if ($data['type'] === 'base64') {
+      // $data['data'] - data:image/png;base64,...BASE64-CONTENT
+
+      // data:image/png
+      $fileName = explode(';', $data['data'])[0];
+
+      // png
+      $fileName = explode('/', $fileName)[1];
+
+      $fileName = md5(microtime()) . '.' . trim($fileName);
+      $filePath = realpath($config['fs']['path']) . $path . '/' . $fileName;
+      file_put_contents($filePath, base64_decode(explode('base64,', $data['data'])[1]));
+    } else {
+      $fileName = md5(microtime()) . '.' . $data['type'];
+      $filePath = realpath($config['fs']['path']) . $path . '/' . $fileName;
+      file_put_contents($filePath, $data['data']);
+    }
+
+    return Fs::info($path . '/' . $fileName);
+  }
+
+  /**
    * @param string $url
    * @param string|null $path
    * @param string|null $name

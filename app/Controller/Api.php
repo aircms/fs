@@ -84,6 +84,21 @@ class Api extends Base
   }
 
   /**
+   * @param string $path
+   * @param array $datum
+   * @return array
+   * @throws ClassWasNotFound
+   */
+  public function uploadDatum(string $path, array $datum): array
+  {
+    $files = [];
+    foreach ($datum as $data) {
+      $files[] = Fs::uploadData($path, $data)->toArray();
+    }
+    return $files;
+  }
+
+  /**
    * @param string $folder
    * @param string $fileName
    * @param string $title
