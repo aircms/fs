@@ -30,7 +30,10 @@ class Fs
   public static function createFolder(string $name, ?string $path = self::ROOT, bool $recursive = false): Folder
   {
     $config = Front::getInstance()->getConfig();
-    mkdir(realpath($config['fs']['path']) . $path . '/' . $name, 0755, $recursive);
+    try {
+      mkdir(realpath($config['fs']['path']) . $path . '/' . $name, 0755, $recursive);
+    } catch (Throwable) {
+    }
     return Fs::info($path . '/' . $name);
   }
 
