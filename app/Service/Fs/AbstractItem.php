@@ -14,9 +14,6 @@ abstract class AbstractItem
   public string $mime;
   public int $size = 0;
 
-  /**
-   * @param array $item
-   */
   public function __construct(array $item)
   {
     foreach ($item as $key => $value) {
@@ -24,10 +21,6 @@ abstract class AbstractItem
     }
   }
 
-  /**
-   * @param bool|null $decimal
-   * @return string
-   */
   public function getSize(?bool $decimal = true): string
   {
     if (!$this->size) {
@@ -37,11 +30,6 @@ abstract class AbstractItem
     return $this->formatBytes($this->size);
   }
 
-  /**
-   * @param int $bytes
-   * @param bool|null $decimal
-   * @return string
-   */
   public function formatBytes(int $bytes, ?bool $decimal = true): string
   {
     $kilobyte = 1024;

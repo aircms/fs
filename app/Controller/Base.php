@@ -6,18 +6,12 @@ namespace App\Controller;
 
 use Air\Cookie;
 use Air\Core\Controller;
-use Air\Core\Exception\ClassWasNotFound;
 use Air\Core\Front;
 use App\Service\Locale;
 use Exception;
 
 class Base extends Controller
 {
-  /**
-   * @return void
-   * @throws ClassWasNotFound
-   * @throws Exception
-   */
   public function init(): void
   {
     parent::init();

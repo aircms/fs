@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Service\Fs;
 
-use Air\Core\Exception\ClassWasNotFound;
 use Air\Core\Front;
 use App\Service\Fs;
 use FFMpeg\Coordinate\TimeCode;
@@ -14,22 +13,13 @@ use Throwable;
 
 class File extends AbstractItem
 {
-  /**
-   * @var string
-   */
   public string $url = '';
 
-  /**
-   * @var array|int[]
-   */
   public array $dims = [
     'width' => 0,
     'height' => 0
   ];
 
-  /**
-   * @var string
-   */
   public string $ext;
 
   public function __construct(array $item)
@@ -40,10 +30,6 @@ class File extends AbstractItem
     $this->ext = $fileParts[count($fileParts) - 1];
   }
 
-  /**
-   * @return string
-   * @throws ClassWasNotFound
-   */
   public function getThumbnailPath(): string
   {
     $thumbFilename = md5($this->path);
@@ -57,9 +43,6 @@ class File extends AbstractItem
     return '/' . $config['thumbnails'] . '/' . $thumbFilename . '.' . $ext;
   }
 
-  /**
-   * @return bool
-   */
   public function hasThumbnail(): bool
   {
     try {
@@ -70,10 +53,6 @@ class File extends AbstractItem
     return false;
   }
 
-  /**
-   * @return string
-   * @throws ClassWasNotFound
-   */
   public function getThumbnail(): string
   {
     $config = Front::getInstance()->getConfig()['fs'];
@@ -129,9 +108,6 @@ class File extends AbstractItem
     }
   }
 
-  /**
-   * @return string
-   */
   public function getSimplifyMime(): string
   {
     $types = ['image', 'video', 'pdf', 'text'];
@@ -145,10 +121,6 @@ class File extends AbstractItem
     return 'file';
   }
 
-  /**
-   * @return array
-   * @throws ClassWasNotFound
-   */
   public function toArray(): array
   {
     return [
@@ -162,10 +134,6 @@ class File extends AbstractItem
     ];
   }
 
-  /**
-   * @return string
-   * @throws ClassWasNotFound
-   */
   public function toJSON(): string
   {
     return htmlspecialchars(json_encode($this->toArray()), ENT_QUOTES, 'UTF-8');

@@ -5,19 +5,13 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Air\Core\ErrorController;
-use Air\Core\Exception\ClassWasNotFound;
 use Air\Core\Exception\ControllerClassWasNotFound;
 use Air\Core\Front;
-use App\Service\ImageResize;
-use Exception;
+use App\Service\ImageProcessor;
 use Throwable;
 
 class Error extends ErrorController
 {
-  /**
-   * @return array
-   * @throws ClassWasNotFound
-   */
   public function index(): array
   {
     $exception = $this->getException();
@@ -40,58 +34,66 @@ class Error extends ErrorController
     ];
   }
 
-  /**
-   * @return void
-   */
   private function propagateImage(): void
   {
     try {
-      $dest = array_values(array_filter(explode('/', $_SERVER['REQUEST_URI'])));
-      $dest[0] = Front::getInstance()->getConfig()['fs']['path'];
-      $dest = implode('/', $dest);
+      $params = $this->parseSrc(urldecode($_SERVER['REQUEST_URI']));
 
-      $realFileName = explode('/', $dest);
-      $realFileName = $realFileName[count($realFileName) - 1];
-      $realFileName = explode('_r_', $realFileName);
-      $ext = explode('.', $realFileName[1]);
+      $source = realpath(Front::getInstance()->getConfig()['fs']['path'] . $params['baseUrl']);
+      $dest = Front::getInstance()->getConfig()['fs']['path'] . $params['newUrl'];
 
-      if ($ext[1] !== 'png' && $ext[1] !== 'jpg' && $ext[1] !== 'jpeg') {
-        return;
-      }
+      $width = $params['width'];
+      $height = $params['height'];
+      $quality = $params['quality'];
 
-      $sourceFolder = explode('/', $dest);
-      unset($sourceFolder[count($sourceFolder) - 1]);
-      $source = implode('/', $sourceFolder) . '/' . $realFileName[0] . '.' . $ext[1];
-
-      if (!file_exists($source)) {
-        return;
-      }
-
-      $width = null;
-      $height = null;
-
-      try {
-        $width = (int)explode('x', $ext[0])[0];
-      } catch (Exception) {
-      }
-
-      try {
-        $height = (int)explode('x', $ext[0])[1];
-      } catch (Exception) {
-      }
-
-      $image = new ImageResize($source);
+      $image = new ImageProcessor($source);
 
       if ($width && $height) {
-        $image->crop($width, $height, true);
-      } else {
+        $image->cropAndResize($width, $height);
+      } elseif ($width) {
         $image->resizeToLongSide($width);
       }
 
-      $image->save($dest);
-      $this->redirect($_SERVER['REQUEST_URI']);
+      $image->save($dest, quality: $quality);
+      $this->redirect(Front::getInstance()->getConfig()['fs']['host'] . $this->getRequest()->getUri());
 
     } catch (Throwable) {
+      $this->redirect(Front::getInstance()->getConfig()['fs']['url'] . $params['baseUrl']);
     }
+  }
+
+  private function parseSrc(string $url): array
+  {
+    $name = basename($url);
+
+    $re = '/^
+        (?<base>.+?)
+        (?:_r(?<w>\d+)(?:x(?<h>\d+))?)?
+        (?:_q(?<q>\d+))?
+        \.(?<ext>[^.\/]+)
+        $/xu';
+
+    if (!preg_match($re, $name, $m)) {
+      $url = str_replace(Front::getInstance()->getConfig()['fs']['folder'] . '/', '', $url);
+      return [
+        'baseUrl' => $url,
+        'width' => null,
+        'height' => null,
+        'quality' => null,
+      ];
+    }
+
+    $baseName = $m['base'] . '.' . $m['ext'];
+    $baseUrl = substr($url, 0, strrpos($url, $name)) . $baseName;
+    $baseUrl = str_replace(Front::getInstance()->getConfig()['fs']['folder'] . '/', '', $baseUrl);
+    $url = str_replace(Front::getInstance()->getConfig()['fs']['folder'] . '/', '', $url);
+
+    return [
+      'baseUrl' => $baseUrl,
+      'newUrl' => $url,
+      'width' => isset($m['w']) ? (int)$m['w'] : null,
+      'height' => isset($m['h']) ? (int)$m['h'] : null,
+      'quality' => isset($m['q']) ? (int)$m['q'] : null,
+    ];
   }
 }

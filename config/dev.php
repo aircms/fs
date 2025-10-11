@@ -8,7 +8,7 @@ return [
       'display_errors' => '1',
     ],
     'startup' => [
-      'error_reporting' => E_ALL,
+      'error_reporting' => E_ALL & ~E_DEPRECATED,
     ],
   ],
 ];

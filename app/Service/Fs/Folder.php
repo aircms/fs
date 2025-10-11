@@ -11,22 +11,13 @@ use SplFileInfo;
 
 class Folder extends AbstractItem
 {
-  /**
-   * @var string
-   */
   public string $mime = 'directory';
 
-  /**
-   * @var array|int[]
-   */
   public array $itemsCount = [
     'folders' => 0,
     'files' => 0,
   ];
 
-  /**
-   * @param array $item
-   */
   public function __construct(array $item)
   {
     parent::__construct($item);
@@ -61,18 +52,11 @@ class Folder extends AbstractItem
     ];
   }
 
-  /**
-   * @param bool|null $decimal
-   * @return string
-   */
   public function getSize(?bool $decimal = true): string
   {
     return $this->formatBytes($this->size, $decimal);
   }
 
-  /**
-   * @return array[int]
-   */
   public function getItemsCount(): array
   {
     return $this->itemsCount;

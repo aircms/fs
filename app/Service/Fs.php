@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use Air\Core\Exception\ClassWasNotFound;
 use Air\Core\Front;
 use App\Service\Fs\File;
 use App\Service\Fs\Folder;
-use ImagickDrawException;
-use ImagickException;
 use Mimey\MimeTypes;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -20,13 +17,6 @@ class Fs
 {
   const string ROOT = '/';
 
-  /**
-   * @param string $name
-   * @param string|null $path
-   * @param bool $recursive
-   * @return Folder
-   * @throws ClassWasNotFound
-   */
   public static function createFolder(string $name, ?string $path = self::ROOT, bool $recursive = false): Folder
   {
     $config = Front::getInstance()->getConfig();
@@ -37,10 +27,6 @@ class Fs
     return Fs::info($path . '/' . $name);
   }
 
-  /**
-   * @param string $path
-   * @return void
-   */
   public static function deleteFolder(string $path): void
   {
     if (!str_ends_with($path, '/')) {
@@ -62,9 +48,6 @@ class Fs
     rmdir($path);
   }
 
-  /**
-   * @return array
-   */
   private static function mapFiles(): array
   {
     return array_map(function ($name, $type, $tmpName, $error, $size) {
@@ -84,11 +67,6 @@ class Fs
     );
   }
 
-  /**
-   * @param string $path
-   * @return array
-   * @throws ClassWasNotFound
-   */
   public static function uploadFile(string $path): array
   {
     $files = self::mapFiles();
@@ -111,11 +89,6 @@ class Fs
     return $errors;
   }
 
-  /**
-   * @param string $path
-   * @return File[]
-   * @throws ClassWasNotFound
-   */
   public static function uploadFileApi(string $path): array
   {
     $config = Front::getInstance()->getConfig();
@@ -136,28 +109,17 @@ class Fs
     return $files;
   }
 
-  /**
-   * @param string $path
-   * @param array $data
-   * @return File
-   * @throws ClassWasNotFound
-   */
   public static function uploadData(string $path, array $data): File
   {
     $config = Front::getInstance()->getConfig();
 
     if ($data['type'] === 'base64') {
-      // $data['data'] - data:image/png;base64,...BASE64-CONTENT
-
-      // data:image/png
       $fileName = explode(';', $data['data'])[0];
-
-      // png
       $fileName = explode('/', $fileName)[1];
-
       $fileName = md5(microtime()) . '.' . trim($fileName);
       $filePath = realpath($config['fs']['path']) . $path . '/' . $fileName;
       file_put_contents($filePath, base64_decode(explode('base64,', $data['data'])[1]));
+
     } else {
       $fileName = md5(microtime()) . '.' . $data['type'];
       $filePath = realpath($config['fs']['path']) . $path . '/' . $fileName;
@@ -167,13 +129,6 @@ class Fs
     return Fs::info($path . '/' . $fileName);
   }
 
-  /**
-   * @param string $url
-   * @param string|null $path
-   * @param string|null $name
-   * @return File
-   * @throws ClassWasNotFound
-   */
   public static function uploadByUrl(string $url, ?string $path = self::ROOT, ?string $name = null): File
   {
     if (!$name) {
@@ -200,11 +155,6 @@ class Fs
     return self::info($path . '/' . $name . '.' . $extension);
   }
 
-  /**
-   * @param string $path
-   * @return void
-   * @throws ClassWasNotFound
-   */
   public static function deleteFile(string $path): void
   {
     $config = Front::getInstance()->getConfig()['fs'];
@@ -216,24 +166,20 @@ class Fs
     unlink($file->realPath);
   }
 
-  /**
-   * @param string|null $path
-   * @return Fs\File[][]|Fs\Folder[][]
-   * @throws ClassWasNotFound
-   */
   public static function listFolder(?string $path = self::ROOT): array
   {
     $config = Front::getInstance()->getConfig()['fs'];
-    $items = glob($config['path'] . $path . '/*');
+    $items = [];
+
+    foreach (glob($config['path'] . $path . '/*') as $item) {
+      if (!str_contains($item, '_r') && !str_contains($item, '_q')) {
+        $items[] = $item;
+      }
+    }
 
     return self::prepareItems($items);
   }
 
-  /**
-   * @param string|null $path
-   * @return File[]|Folder[]
-   * @throws ClassWasNotFound
-   */
   public static function tree(?string $path = self::ROOT): array
   {
     $config = Front::getInstance()->getConfig()['fs'];
@@ -242,11 +188,6 @@ class Fs
     return self::prepareItems($items)['folders'];
   }
 
-  /**
-   * @param string $query
-   * @return Fs\File[][]|Fs\Folder[][]
-   * @throws ClassWasNotFound
-   */
   public static function search(string $query): array
   {
     $config = Front::getInstance()->getConfig();
@@ -265,11 +206,6 @@ class Fs
     return self::prepareItems($items);
   }
 
-  /**
-   * @param array $items
-   * @return File[][]|Folder[][]
-   * @throws ClassWasNotFound
-   */
   public static function prepareItems(array $items): array
   {
     natcasesort($items);
@@ -325,11 +261,6 @@ class Fs
     ];
   }
 
-  /**
-   * @param string $path
-   * @return File|Folder
-   * @throws ClassWasNotFound
-   */
   public static function info(string $path): File|Folder
   {
     $config = Front::getInstance()->getConfig()['fs'];
@@ -364,17 +295,6 @@ class Fs
     return new Folder($info);
   }
 
-  /**
-   * @param string $folder
-   * @param string $fileName
-   * @param string $title
-   * @param string $backColor
-   * @param string $frontColor
-   * @return File
-   * @throws ClassWasNotFound
-   * @throws ImagickDrawException
-   * @throws ImagickException
-   */
   public static function annotation(
     string $folder,
     string $fileName,

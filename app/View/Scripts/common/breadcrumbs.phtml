@@ -9,10 +9,10 @@ $workingPath = $this->workingPath;
 $path = array_filter(explode('/', $workingPath));
 
 /** @var Folder $workingPathFolder */
-$workingPathFolder = Fs::info($workingPath);
+// $workingPathFolder = Fs::info($workingPath);
 
-$workingFolderItemsCount = $workingPathFolder->getItemsCount();
-$size = $workingPathFolder->getSize();
+$workingFolderItemsCount = ['folders' => 0, 'files' => 0]; // $workingPathFolder->getItemsCount();
+$size = 0; // $workingPathFolder->getSize();
 ?>
 <nav aria-label="breadcrumb" class="d-flex justify-content-between align-items-center">
   <ol class="breadcrumb m-0 user-select-none">
@@ -36,7 +36,7 @@ $size = $workingPathFolder->getSize();
       <?php endif; ?>
     <?php endforeach; ?>
   </ol>
-  <div class="small">
+  <div class="small d-none">
     <span class="badge badge-primary">
       <?php echo $size; ?>
     </span>
