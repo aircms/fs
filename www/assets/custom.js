@@ -64,6 +64,7 @@ $(document).ready(() => {
 const viewFile = (path) => {
   $.post('/modal/view', {path}, (content) => {
     modal.html(locale('Preview'), content, {size: 'xLarge'});
+
   });
 };
 
@@ -266,3 +267,7 @@ const removeSelected = () => {
     });
   });
 };
+
+$(document).on('click', '[data-image-preview]', function () {
+  $(this).toggleClass('zoom');
+});

@@ -123,6 +123,9 @@ class File extends AbstractItem
 
   public function toArray(): array
   {
+    $path = array_filter(explode('/', $this->path));
+    $path = implode('/', $path);
+
     return [
       'size' => $this->size,
       'mime' => $this->mime,
@@ -130,7 +133,7 @@ class File extends AbstractItem
       'dims' => $this->dims,
       'ext' => $this->ext,
       'thumbnail' => $this->getThumbnail(),
-      'src' => '/' . Front::getInstance()->getConfig()['fs']['folder'] . $this->path,
+      'src' => '/' . Front::getInstance()->getConfig()['fs']['folder'] . '/' . $path,
     ];
   }
 

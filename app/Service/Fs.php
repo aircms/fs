@@ -20,6 +20,7 @@ class Fs
   public static function createFolder(string $name, ?string $path = self::ROOT, bool $recursive = false): Folder
   {
     $config = Front::getInstance()->getConfig();
+
     try {
       mkdir(realpath($config['fs']['path']) . $path . '/' . $name, 0755, $recursive);
     } catch (Throwable) {
@@ -135,14 +136,24 @@ class Fs
       $name = md5(microtime());
     }
 
-    $file = file_get_contents($url, false, stream_context_create(['ssl' => ['ciphers' => 'DEFAULT:!DH']]));
+    $file = file_get_contents($url, false, stream_context_create([
+      'ssl' => [
+        'ciphers' => 'DEFAULT:!DH',
+        'verify_peer' => false,
+        'verify_peer_name' => false,
+        'allow_self_signed' => true,
+      ]
+    ]));
 
     $config = Front::getInstance()->getConfig();
 
-    $filePath = realpath($config['fs']['path']) . $path . '/';
+    $path = array_filter(explode('/', $path));
+    $path = implode('/', $path);
+
+    $filePath = realpath($config['fs']['path']) . '/' . $path . '/';
 
     if (!file_exists($filePath)) {
-      self::createFolder($path);
+      self::createFolder($path, self::ROOT, true);
     }
 
     file_put_contents($filePath . $name, $file);
@@ -172,9 +183,10 @@ class Fs
     $items = [];
 
     foreach (glob($config['path'] . $path . '/*') as $item) {
-      if (!str_contains($item, '_r') && !str_contains($item, '_q')) {
-        $items[] = $item;
+      if (is_file($item) && str_contains(basename($item), '_mod')) {
+        continue;
       }
+      $items[] = $item;
     }
 
     return self::prepareItems($items);
@@ -265,7 +277,10 @@ class Fs
   {
     $config = Front::getInstance()->getConfig()['fs'];
 
-    $fullPath = realpath($config['path'] . $path);
+    $path = array_filter(explode('/', $path));
+    $path = implode('/', $path);
+
+    $fullPath = realpath($config['path'] . '/' . $path);
 
     $info = [
       'name' => basename($fullPath),
@@ -278,7 +293,7 @@ class Fs
 
     if (is_file($fullPath)) {
       $info['size'] = filesize($fullPath);
-      $info['url'] = $config['url'] . $path;
+      $info['url'] = $config['url'] . '/' . $path;
 
       try {
         $dims = getimagesize($fullPath);

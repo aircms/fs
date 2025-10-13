@@ -9,6 +9,18 @@
 .modal .preview-image {
   max-height: 73vh;
   min-height: 73vh;
+  overflow: auto !important;
+
+  img {
+    cursor: zoom-in;
+    max-height: 73vh !important;
+
+    &.zoom {
+      cursor: zoom-out;
+      max-height: none !important;
+      width: 100%;
+    }
+  }
 }
 
 .upload-progress {

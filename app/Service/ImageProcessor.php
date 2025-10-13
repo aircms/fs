@@ -21,7 +21,7 @@ class ImageProcessor
     $this->image = new Imagick($imagePath);
     $this->format = strtolower($this->image->getImageFormat());
 
-    if (!in_array($this->format, ['jpeg', 'jpg', 'png', 'webp'])) {
+    if (!in_array($this->format, ['jpeg', 'jpg', 'png', 'webp', 'avif'])) {
       throw new Exception("Unsupported image format: {$this->format}");
     }
 
@@ -82,10 +82,12 @@ class ImageProcessor
         $this->image->setImageCompression(Imagick::COMPRESSION_JPEG);
         $this->image->setImageCompressionQuality($quality);
         break;
+
       case 'png':
         $this->image->setImageFormat('png');
         $this->image->setOption('png:compression-level', (string)intval(9 * (100 - $quality) / 100));
         break;
+
       case 'webp':
         $origSize = strlen($this->image->getImageBlob());
         $targetSize = (int)($origSize * ($quality / 100));
@@ -94,8 +96,15 @@ class ImageProcessor
         $this->image->setOption('webp:lossless', 'false');
         $this->image->setOption('webp:method', '6');
         $this->image->setOption('webp:target-size', (string)$targetSize);
-
         break;
+
+      case 'avif':
+        $this->image->setImageColorspace(Imagick::COLORSPACE_SRGB);
+        $this->image->setImageFormat('AVIF');
+        $this->image->setOption('heic:speed', '6');
+        $this->image->setImageCompressionQuality($quality);
+        break;
+
       default:
         throw new Exception("Unsupported output format: $ext");
     }
