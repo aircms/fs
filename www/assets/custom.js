@@ -64,7 +64,7 @@ $(document).ready(() => {
 const viewFile = (path) => {
   $.post('/modal/view', {path}, (content) => {
     modal.html(locale('Preview'), content, {size: 'xLarge'});
-
+    setTimeout(() => wheelzoom(document.querySelector('img[data-zoom]')), 300);
   });
 };
 
@@ -214,40 +214,6 @@ const searchFiles = () => {
   $.post('/index/search', {query}, (l) => $('[data-list]').html(l));
 };
 
-const openTree = () => {
-  const tree = $('[data-tree]');
-  tree.removeClass('d-none');
-  setTimeout(() => tree.addClass('show'), 50);
-};
-
-const closeTree = () => {
-  const tree = $('[data-tree]');
-  tree.removeClass('show');
-  setTimeout(() => tree.addClass('d-none'), 500);
-};
-
-const tree = (path, el) => {
-  const container = $(el).closest('[data-folder-container]');
-  const subFolder = container.find('[data-sub-folder]');
-
-  if (container.attr('data-tree-opened')) {
-    container.removeAttr('data-tree-opened');
-    container.find('[data-tree-folder-icon]').addClass('fa-folder').removeClass('fa-folder-open');
-    container.find('[data-tree-arrow-icon]').css('transform', 'rotate(0)');
-
-    subFolder.html('');
-    return;
-  }
-
-  container.attr('data-tree-opened', 'true');
-
-  $.post('/index/tree', {path}, (treeHtml) => {
-    container.find('[data-tree-folder-icon]').addClass('fa-folder-open').removeClass('fa-folder');
-    container.find('[data-tree-arrow-icon]').css('transform', 'rotate(90deg)');
-    subFolder.html(treeHtml);
-  });
-};
-
 const selectFile = (file) => {
   window.parent.postMessage({file}, "*");
 };
@@ -268,6 +234,3 @@ const removeSelected = () => {
   });
 };
 
-$(document).on('click', '[data-image-preview]', function () {
-  $(this).toggleClass('zoom');
-});

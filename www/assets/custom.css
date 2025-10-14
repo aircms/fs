@@ -14,12 +14,6 @@
   img {
     cursor: zoom-in;
     max-height: 73vh !important;
-
-    &.zoom {
-      cursor: zoom-out;
-      max-height: none !important;
-      width: 100%;
-    }
   }
 }
 
@@ -31,67 +25,13 @@
   max-height: 65vh;
 }
 
-.tree {
-  z-index: 1055;
-  opacity: 0;
-}
-
-.tree:before {
-  content: '';
-  opacity: .5;
-  background-color: var(--mdb-box-shadow-color);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-}
-
-.tree.show {
-  opacity: 1;
-}
-
-.tree .tree-body {
-  width: 600px;
-  left: -600px;
-  opacity: 0;
-}
-
-.tree.show .tree-body {
-  left: 0;
-  opacity: 1;
-}
-
 .folder-size {
   width: 100px;
-}
-
-.tree .tree-folder {
-
-}
-
-.tree .tree-folder .tree-folder-icon,
-.tree .tree-folder .tree-arrow-icon {
-  width: 20px;
-  min-width: 20px;
-  max-width: 20px;
-
-  height: 20px;
-  min-height: 20px;
-  max-height: 20px;
 }
 
 .dropdown-menu {
   --mdb-dropdown-bg: var(--mdb-body-bg);
   overflow: hidden;
-}
-
-.tree-meta-info {
-  font-size: 12px;
-
-  width: 105px;
-  min-width: 105px;
-  max-width: 105px;
 }
 
 .ui-selectable-helper {

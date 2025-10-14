@@ -6,7 +6,6 @@ use App\Service\Fs\Folder;
 $folder = $this->folder;
 $id = uniqid();
 
-$itemsCount = $folder->getItemsCount();
 $size = $folder->getSize();
 
 ?>
@@ -38,14 +37,6 @@ $size = $folder->getSize();
       <div class="d-flex justify-content-between small">
         <div class="text-muted"><?php echo \App\Service\Locale::t('Size'); ?>:</div>
         <div class="text-muted fw-bold"><?php echo $size; ?></div>
-      </div>
-      <div class="d-flex justify-content-between small">
-        <div class="text-muted"><?php echo \App\Service\Locale::t('Folders'); ?>:</div>
-        <div class="text-muted fw-bold"><?php echo $itemsCount['folders']; ?></div>
-      </div>
-      <div class="d-flex justify-content-between small">
-        <div class="text-muted"><?php echo \App\Service\Locale::t('Files'); ?>:</div>
-        <div class="text-muted fw-bold"><?php echo $itemsCount['files']; ?></div>
       </div>
     </li>
   </ul>

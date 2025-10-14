@@ -48,18 +48,8 @@ class Index extends Base
   {
     $this->getView()->setAutoRender(true);
 
-    $items = Fs::listFolder($path);
-    $tree = Fs::tree();
-
-    $this->getView()->assign('items', $items);
-    $this->getView()->assign('tree', $tree);
+    $this->getView()->assign('items', Fs::listFolder($path));
     $this->getView()->assign('workingPath', $path);
-  }
-
-  public function tree(string $path = null): void
-  {
-    $this->getView()->setAutoRender(true);
-    $this->getView()->assign('tree', Fs::tree($path));
   }
 
   public function search(string $query): void

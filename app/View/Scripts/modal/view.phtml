@@ -10,7 +10,7 @@ $file = $this->file;
 
   <?php if ($file->getSimplifyMime() === 'image') : ?>
     <div class="rounded-4 overflow-hidden preview-image d-flex justify-content-center align-items-center">
-      <img data-image-preview class="mh-100 mw-100 rounded-4" src="<?php echo $file->url; ?>">
+      <img data-zoom class="mh-100 mw-100 rounded-4" src="<?php echo $file->url; ?>">
     </div>
 
   <?php elseif ($file->getSimplifyMime() === 'video') : ?>

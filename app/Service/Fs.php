@@ -47,6 +47,12 @@ class Fs
     }
 
     rmdir($path);
+
+    try {
+      $metadataFile = substr($path, 0, -1) . '.metadata';
+      unlink($metadataFile);
+    } catch (Throwable) {
+    }
   }
 
   private static function mapFiles(): array
@@ -175,6 +181,11 @@ class Fs
       unlink($config['path'] . $file->getThumbnailPath());
     }
     unlink($file->realPath);
+
+    try {
+      unlink($file->realPath . '.metadata');
+    } catch (Throwable) {
+    }
   }
 
   public static function listFolder(?string $path = self::ROOT): array
@@ -183,21 +194,13 @@ class Fs
     $items = [];
 
     foreach (glob($config['path'] . $path . '/*') as $item) {
-      if (is_file($item) && str_contains(basename($item), '_mod')) {
+      if (is_file($item) && str_contains(basename($item), '_mod') || str_ends_with(basename($item), '.metadata')) {
         continue;
       }
       $items[] = $item;
     }
 
     return self::prepareItems($items);
-  }
-
-  public static function tree(?string $path = self::ROOT): array
-  {
-    $config = Front::getInstance()->getConfig()['fs'];
-    $items = glob($config['path'] . $path . '/*', GLOB_ONLYDIR);
-
-    return self::prepareItems($items)['folders'];
   }
 
   public static function search(string $query): array
@@ -233,33 +236,44 @@ class Fs
         continue;
       }
 
-      $itemPath = substr(realpath($item), strlen(realpath($config['path'])));
+      $metaDataFile = realpath($item) . '.metadata';
 
-      $info = [
-        'name' => basename($item),
-        'path' => $itemPath,
-        'time' => filemtime(realpath($item)),
-        'mime' => mime_content_type(realpath($item)),
-        'realPath' => $item,
-        'dirName' => dirname($item)
-      ];
+      if (is_file($metaDataFile)) {
+        $info = json_decode(file_get_contents($metaDataFile), true);
 
-      if (is_file($item)) {
-        $info['url'] = $config['url'] . $itemPath;
-        $info['size'] = filesize(realpath($item));
+      } else {
+        $itemPath = substr(realpath($item), strlen(realpath($config['path'])));
 
-        try {
-          $dims = getimagesize(realpath($item));
+        $info = [
+          'name' => basename($item),
+          'path' => $itemPath,
+          'time' => filemtime(realpath($item)),
+          'mime' => mime_content_type(realpath($item)),
+          'realPath' => $item,
+          'dirName' => dirname($item)
+        ];
 
-          if ($dims) {
-            $info['dims'] = [
-              'width' => $dims[0],
-              'height' => $dims[1]
-            ];
+        if (is_file($item)) {
+          $info['url'] = $config['url'] . $itemPath;
+          $info['size'] = filesize(realpath($item));
+
+          try {
+            $dims = getimagesize(realpath($item));
+
+            if ($dims) {
+              $info['dims'] = [
+                'width' => $dims[0],
+                'height' => $dims[1]
+              ];
+            }
+          } catch (Throwable) {
           }
-        } catch (Throwable) {
         }
 
+        file_put_contents($metaDataFile, json_encode($info));
+      }
+
+      if (is_file($item)) {
         $files[] = new File($info);
 
       } else {

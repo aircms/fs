@@ -27,7 +27,7 @@ abstract class AbstractItem
       return '0b';
     }
 
-    return $this->formatBytes($this->size);
+    return $this->formatBytes($this->size, $decimal);
   }
 
   public function formatBytes(int $bytes, ?bool $decimal = true): string

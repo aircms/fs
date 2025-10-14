@@ -38,6 +38,8 @@ $lang = $this->lang;
 
     'assets/custom.css',
     'assets/custom.js',
+
+    'assets/wheelzoom.js',
   ]); ?>
   <script>
     const locale = (key) => (<?php echo json_encode(\App\Service\Locale::phrases(), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); ?>)[key] || key;
@@ -45,18 +47,9 @@ $lang = $this->lang;
 </head>
 <body data-mdb-theme="<?php echo $theme; ?>" data-file-mode-select="<?php echo $select; ?>">
 <main class="vh-100 vw-100 p-3 pb-0 overflow-hidden d-flex flex-column">
-  <?php echo $this->partial('common/tree'); ?>
   <div class="card w-100">
     <div class="card-body p-3">
       <div class="d-flex align-items-center">
-        <div class="pe-3">
-          <button type="button"
-                  class="btn btn-primary px-3"
-                  onclick="openTree()"
-                  data-mdb-ripple-init>
-            <i class="fas fa-folder-tree"></i>
-          </button>
-        </div>
         <div class="pe-3 w-100">
           <?php echo $this->partial('common/search'); ?>
         </div>
