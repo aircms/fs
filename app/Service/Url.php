@@ -27,13 +27,13 @@ class Url
     foreach ($settings as $setting) {
       $value = intval(substr($setting, 1));
 
-      if ($setting[0] === 'w') {
+      if (($setting[0] ?? false) === 'w') {
         $width = $value;
 
-      } else if ($setting[0] === 'h') {
+      } else if (($setting[0] ?? false) === 'h') {
         $height = $value;
 
-      } else if ($setting[0] === 'q') {
+      } else if (($setting[0] ?? false) === 'q') {
         $quality = $value;
       }
     }
@@ -52,7 +52,7 @@ class Url
     }
 
     if (!$source) {
-      throw new Exception();
+      throw new Exception('Candidate not found');
     }
 
     return [
