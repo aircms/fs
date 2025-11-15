@@ -215,6 +215,7 @@ const searchFiles = () => {
 };
 
 const selectFile = (file) => {
+  console.log(file);
   window.parent.postMessage({file}, "*");
 };
 

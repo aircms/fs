@@ -11,76 +11,61 @@ class Url
 {
   protected static function parseModifiedImageUrl(string $url, string $storageRoot): array
   {
-    $res = [
-      'width' => null,
-      'height' => null,
-      'quality' => null,
-      'format' => null,
-      'source' => null,
-    ];
+    $width = null;
+    $height = null;
+    $quality = null;
+    $source = null;
 
     $pi = pathinfo($url);
-    $dirname = $pi['dirname'] ?? '/storage';
-    $filename = $pi['filename'] ?? '';
-    $ext = isset($pi['extension']) ? strtolower($pi['extension']) : null;
+    $format = $pi['extension'];
 
-    $relativePath = preg_replace('#^/storage#', '', $url);
-    $res['dest'] = rtrim($storageRoot, '/') . $relativePath;
+    if (!str_contains($pi['filename'], '_mod_')) {
+      throw new Exception();
+    }
 
-    if (!preg_match('/_mod(?:_.+)?$/i', $filename)) {
-      $originalBase = $filename;
+    $settings = explode('_', explode('_mod_', $pi['filename'])[1]);
+    foreach ($settings as $setting) {
+      $value = intval(substr($setting, 1));
 
-    } else {
-      if (!preg_match('/^(?P<base>.+?)_mod(?:_(?P<mods>(?:[whq]\d+)(?:_(?:[whq]\d+))*))?$/i', $filename, $m)) {
-        $originalBase = preg_replace('/_mod.*$/i', '', $filename);
+      if ($setting[0] === 'w') {
+        $width = $value;
 
-      } else {
-        $originalBase = $m['base'];
+      } else if ($setting[0] === 'h') {
+        $height = $value;
 
-        if (!empty($m['mods'])) {
-          foreach (explode('_', $m['mods']) as $mod) {
-
-            if (preg_match('/^w(\d+)$/i', $mod, $mm)) {
-              $res['width'] = (int)$mm[1];
-
-            } elseif (preg_match('/^h(\d+)$/i', $mod, $mm)) {
-              $res['height'] = (int)$mm[1];
-
-            } elseif (preg_match('/^q(\d+)$/i', $mod, $mm)) {
-              $res['quality'] = (int)$mm[1];
-            }
-          }
-        }
+      } else if ($setting[0] === 'q') {
+        $quality = $value;
       }
     }
 
-    $relativeDir = preg_replace('#^/storage#', '', $dirname);
-    $fsDir = rtrim($storageRoot, '/') . $relativeDir;
+    $dirname = array_filter(explode('/', $pi['dirname']));
+    $dirname = implode('/', $dirname);
+    $filePath = dirname(realpath($storageRoot)) . '/' . $dirname . '/' . explode('_mod_', $pi['filename'])[0];
+    $dest = dirname(realpath($storageRoot)) . '/' . $dirname . '/' . $pi['basename'];
 
-    $possibleExts = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
-    $foundSource = null;
-    $sourceExt = null;
-
-    foreach ($possibleExts as $e) {
-      $candidate = $fsDir . '/' . $originalBase . '.' . $e;
+    foreach (ImageProcessor::SUPPORTED_IMAGE_FORMATS as $ext) {
+      $candidate = $filePath . '.' . $ext;
       if (file_exists($candidate)) {
-        $foundSource = $candidate;
-        $sourceExt = $e;
+        $source = $candidate;
         break;
       }
     }
 
-    if (!$foundSource) {
+    if (!$source) {
       throw new Exception();
     }
 
-    $res['format'] = ($ext && $ext !== $sourceExt) ? $ext : null;
-    $res['source'] = $foundSource;
-
-    return $res;
+    return [
+      'width' => $width,
+      'height' => $height,
+      'quality' => $quality ?? 80,
+      'format' => $format,
+      'source' => $source,
+      'dest' => $dest,
+    ];
   }
 
-  public static function normalizeUrl(string $url): string
+  public static function normalize(string $url): string
   {
     $shortUrl = array_values(array_filter(explode('/', $url)));
     return '/' . implode('/', $shortUrl);
@@ -91,19 +76,20 @@ class Url
     $front = Front::getInstance();
 
     $params = self::parseModifiedImageUrl(
-      self::normalizeUrl($front->getRequest()->getUri()),
+      self::normalize($front->getRequest()->getUri()),
       realpath($front->getConfig()['fs']['path'])
     );
 
     $image = new ImageProcessor((string)$params['source']);
 
     if ($params['width'] && $params['height']) {
-      $image->cropAndResize((int)$params['width'], (int)$params['height']);
+      $image->cropAndResize($params['width'], $params['height']);
+
     } elseif ($params['width'] || $params['height']) {
-      $image->resizeToLongSide((int)($params['width'] ?? $params['height']));
+      $image->resizeToLongSide($params['width'] ?? $params['height']);
     }
 
-    $image->save((string)$params['dest'], quality: (int)$params['quality']);
+    $image->save($params['dest'], quality: $params['quality']);
 
     return Front::getInstance()->getConfig()['fs']['host'] . $front->getRequest()->getUri();
   }

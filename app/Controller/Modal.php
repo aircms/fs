@@ -4,23 +4,23 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Service\Fs;
+use App\Service\Item;
 
 class Modal extends Base
 {
   public function view(string $path): void
   {
-    $this->getView()->assign('file', Fs::info($path));
+    $this->getView()->assign('file', Item::instance($path));
   }
 
   public function remove(string $path): void
   {
-    $this->getView()->assign('file', Fs::info($path));
+    $this->getView()->assign('file', Item::instance($path));
   }
 
   public function removeFolder(string $path): void
   {
-    $this->getView()->assign('folder', Fs::info($path));
+    $this->getView()->assign('folder', Item::instance($path));
   }
 
   public function createFolder(string $path): void

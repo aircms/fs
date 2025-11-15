@@ -1,32 +1,30 @@
 <?php
 
-use App\Service\Fs\File;
-use App\Service\Fs\Folder;
+use App\Service\Item;
 
-/** @var Folder[] $folders */
-$folders = $this->items['folders'];
-
-/** @var File[] $files */
-$files = $this->items['files'];
+/** @var Item[] $items */
+$items = $this->items;
 ?>
-<?php if (count($folders)) : ?>
+<?php if (count($items)) : ?>
   <div class="mt-4">
     <div class="row gx-3 d-flex align-items-stretch">
-      <?php foreach ($folders as $folder) : ?>
-        <div class="col-2 mb-3">
-          <?php echo $this->partial('index/folder', ['folder' => $folder]); ?>
-        </div>
+      <?php foreach ($items as $item) : ?>
+        <?php if (!$item->isFile()) : ?>
+          <div class="col-2 mb-3">
+            <?php echo $this->partial('index/folder', ['folder' => $item]); ?>
+          </div>
+        <?php endif; ?>
       <?php endforeach; ?>
     </div>
   </div>
-<?php endif; ?>
-<?php if (count($files)) : ?>
   <div class="mt-4">
     <div class="row gx-3 d-flex align-items-stretch">
-      <?php foreach ($files as $file) : ?>
-        <div class="col-2 mb-3">
-          <?php echo $this->partial('index/file', ['file' => $file]); ?>
-        </div>
+      <?php foreach ($items as $item) : ?>
+        <?php if ($item->isFile()) : ?>
+          <div class="col-2 mb-3">
+            <?php echo $this->partial('index/file', ['file' => $item]); ?>
+          </div>
+        <?php endif; ?>
       <?php endforeach; ?>
     </div>
   </div>

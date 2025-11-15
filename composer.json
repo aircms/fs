@@ -27,10 +27,10 @@
   },
   "scripts": {
     "assets": [
-      "ln -sfn ../vendor/aircms/core/assets www/air"
+      "ln -sfn ../../vendor/aircms/core/assets www/assets/air"
     ],
     "storage": [
-      "mkdir www/storage && mkdir www/storage/__thumbnails && chown -R www-data:www-data www/storage"
+      "mkdir www/storage && chown -R www-data:www-data www/storage"
     ]
   }
 }

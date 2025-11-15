@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\Fs;
+use App\Service\Item;
 use Throwable;
 
 class Api extends Base
@@ -19,7 +20,7 @@ class Api extends Base
 
   public function deleteFolder(string $path): void
   {
-    $folder = Fs::info($path);
+    $folder = Item::instance($path);
     Fs::deleteFolder($folder->realPath);
   }
 
@@ -27,14 +28,14 @@ class Api extends Base
   {
     $files = [];
     foreach ($paths as $path) {
-      $files[] = Fs::info($path)->toArray();
+      $files[] = Item::instance($path)->toArray();
     }
     return $files;
   }
 
-  public function uploadByUrl(string $url, ?string $path = Fs::ROOT, ?string $name = null): array
+  public function uploadByUrl(string $url, string $path = Fs::ROOT): array
   {
-    return Fs::uploadByUrl($url, $path, $name)->toArray();
+    return Fs::uploadByUrl($url, $path)->toArray();
   }
 
   public function deleteFile(string $path): void
@@ -45,6 +46,7 @@ class Api extends Base
   public function uploadFile(string $path): array
   {
     Fs::createFolder($path, Fs::ROOT, true);
+
     $files = [];
     foreach (Fs::uploadFileApi($path) as $file) {
       $files[] = $file->toArray();
@@ -52,9 +54,9 @@ class Api extends Base
     return $files;
   }
 
-  public function createFolder(string $name, string $path, bool $recursive = false): void
+  public function createFolder(string $name, string $path, bool $recursive = false): array
   {
-    Fs::createFolder($name, $path, $recursive);
+    return Fs::createFolder($name, $path, $recursive)->toArray();
   }
 
   public function uploadDatum(string $path, array $datum): array

@@ -22,8 +22,8 @@ class Error extends ErrorController
     if (Front::getInstance()->getConfig()['air']['exception']) {
       return [
         'error' => true,
+        'message' => $this->getException()->getMessage(),
         'trace' => $this->getException()->getTrace(),
-        'message' => $this->getException()->getMessage()
       ];
     }
 

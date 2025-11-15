@@ -1,8 +1,8 @@
 <?php
 
-use App\Service\Fs\File;
+use App\Service\Item;
 
-/** @var File $file */
+/** @var Item $file */
 $file = $this->file;
 ?>
 
@@ -22,7 +22,7 @@ $file = $this->file;
 
   <?php elseif ($file->getSimplifyMime() === 'pdf') : ?>
     <div class="ratio ratio-16x9 bg-image rounded-4 overflow-hidden">
-      <embed src="<?php echo $file->url; ?>" type="application/pdf"/>
+      <embed src="<?php echo $file->url; ?>" type="application/pdf">
     </div>
 
   <?php elseif ($file->getSimplifyMime() === 'text') : ?>
@@ -32,7 +32,7 @@ $file = $this->file;
 
   <?php else : ?>
     <div class="rounded-4 overflow-hidden preview-image d-flex justify-content-center align-items-center">
-      <img class="mh-100 mw-100 rounded-4" src="/unavailable.png">
+      <img class="mh-100 mw-100 rounded-4" src="ui/unavailable.png">
     </div>
 
   <?php endif; ?>
@@ -41,7 +41,7 @@ $file = $this->file;
 <div class="modal-footer d-flex justify-content-between">
   <div class="d-flex">
     <span class="badge badge-info p-2">
-      <?php echo \App\Service\Locale::t('Size'); ?>: <?php echo $file->getSize(); ?>
+      <?php echo \App\Service\Locale::t('Size'); ?>: <?php echo $file->getFormattedSize(); ?>
     </span>
     <span class="badge badge-info ms-2 p-2">
       <?php echo \App\Service\Locale::t('Dims'); ?>: <?php echo $file->dims['width']; ?> x <?php echo $file->dims['height']; ?>
@@ -76,11 +76,12 @@ $file = $this->file;
     </button>
     <button type="button"
             class="btn btn-secondary"
-            onclick="selectFile(<?php echo $file->toJSON(); ?>)""
-            data-file-mode-select-item
-            data-mdb-ripple-init>
-      <i class="fas fa-check me-1"></i>
-      <?php echo \App\Service\Locale::t('Select'); ?>
+            onclick="selectFile(<?php echo $file->toJSON(); ?>)"
+    "
+    data-file-mode-select-item
+    data-mdb-ripple-init>
+    <i class="fas fa-check me-1"></i>
+    <?php echo \App\Service\Locale::t('Select'); ?>
     </button>
   </div>
 </div>

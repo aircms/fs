@@ -1,15 +1,11 @@
 <?php
 
-use App\Service\Fs\File;
+use App\Service\Item;
 
-/** @var File $file */
+/** @var Item $file */
 $file = $this->file;
 
 $id = uniqid();
-$simplifyMime = $file->getSimplifyMime();
-$json = $file->toJSON();
-$thumbnail = $file->getThumbnail();
-$formattedSize = $file->getSize();
 ?>
 <div class="card h-100 position-relative user-select-none border border-secondary-subtle"
      role="button"
@@ -19,22 +15,8 @@ $formattedSize = $file->getSize();
      data-admin-contextmenu="<?php echo $id; ?>">
 
   <div class="ratio ratio-16x9">
-    <div class="w-100 h-100 bg-image position-absolute"
-         data-admin-async-image="<?php echo $thumbnail; ?>">
-
-      <?php if ($file->getSimplifyMime() === 'file') : ?>
-        <i class="fas fa-file fa-2xl text-primary position-absolute end-0 top-0 mt-4 me-2"></i>
-      <?php else : ?>
-        <i
-          class="fas fa-file-<?php echo $simplifyMime ?> fa-2xl text-primary position-absolute end-0 top-0 mt-4 me-2"></i>
-      <?php endif; ?>
+    <div class="w-100 h-100 bg-image position-absolute" data-admin-async-image="<?php echo $file->thumbnailUrl; ?>">
     </div>
-  </div>
-
-  <div class="card-body p-2 pb-1">
-    <span class="small max-lines-2 text-break">
-      <?php echo $file->name; ?>
-    </span>
   </div>
 
   <span class="badge badge-light text-muted">
@@ -46,7 +28,7 @@ $formattedSize = $file->getSize();
     <li class="d-none" data-file-mode-select-item>
       <a class="dropdown-item"
          role="button"
-         onclick="selectFile(<?php echo $json; ?>)">
+         onclick="selectFile(<?php echo $file->toJSON(); ?>)">
         <i class="fas fa-check me-1"></i> <b><?php echo \App\Service\Locale::t('Select'); ?></b>
       </a>
     </li>
@@ -71,7 +53,7 @@ $formattedSize = $file->getSize();
     <li class="px-2 pb-2">
       <div class="d-flex justify-content-between small">
         <div class="text-muted"><?php echo \App\Service\Locale::t('Size'); ?>:</div>
-        <div class="text-muted fw-bold"><?php echo $formattedSize; ?></div>
+        <div class="text-muted fw-bold"><?php echo $file->getFormattedSize(); ?></div>
       </div>
       <?php if (isset($file->dims)) : ?>
         <div class="d-flex justify-content-between small">

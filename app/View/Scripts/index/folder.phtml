@@ -1,15 +1,14 @@
 <?php
 
-use App\Service\Fs\Folder;
+use App\Service\Item;
 
-/** @var Folder $folder */
+/** @var Item $folder */
 $folder = $this->folder;
+
 $id = uniqid();
 
-$size = $folder->getSize();
-
 ?>
-<div class="card border p-3 bg-body-tertiary rounded-4 h-100 position-relative user-select-none"
+<div class="card border p-2 bg-body-tertiary rounded-4 h-100 position-relative user-select-none"
      role="button"
      data-admin-item-size="<?php echo $folder->size; ?>"
      data-folder-item-selectable
@@ -36,7 +35,7 @@ $size = $folder->getSize();
     <li class="px-2 pb-2">
       <div class="d-flex justify-content-between small">
         <div class="text-muted"><?php echo \App\Service\Locale::t('Size'); ?>:</div>
-        <div class="text-muted fw-bold"><?php echo $size; ?></div>
+        <div class="text-muted fw-bold"><?php echo $folder->getFormattedSize(); ?></div>
       </div>
     </li>
   </ul>

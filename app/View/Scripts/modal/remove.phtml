@@ -1,8 +1,8 @@
 <?php
 
-use App\Service\Fs\File;
+use App\Service\Item;
 
-/** @var File $file */
+/** @var Item $file */
 $file = $this->file;
 ?>
 
@@ -26,7 +26,7 @@ $file = $this->file;
 <div class="modal-footer d-flex justify-content-between">
   <div class="d-flex flex-column">
     <span class="badge badge-primary text-start">
-      <?php echo \App\Service\Locale::t('Size'); ?>: <?php echo $file->getSize(); ?>
+      <?php echo \App\Service\Locale::t('Size'); ?>: <?php echo $file->getFormattedSize(); ?>
     </span>
     <span class="badge badge-primary mt-2 text-start">
       <?php echo \App\Service\Locale::t('Dims'); ?>: <?php echo $file->dims['width']; ?> x <?php echo $file->dims['height']; ?>

@@ -1,4 +1,5 @@
 www/storage
+www/assets/air
 vendor
 .idea
 composer.lock

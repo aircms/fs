@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Service;
 
 use Air\Core\Front;
-use App\Service\Fs\File;
-use App\Service\Fs\Folder;
+use Exception;
+use Imagick;
+use ImagickDraw;
 use Mimey\MimeTypes;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -17,42 +18,44 @@ class Fs
 {
   const string ROOT = '/';
 
-  public static function createFolder(string $name, ?string $path = self::ROOT, bool $recursive = false): Folder
+  public static function createFolder(string $name, string $path = self::ROOT, bool $recursive = false): Item
   {
-    $config = Front::getInstance()->getConfig();
-
+    if (!preg_match('/^[a-z0-9\/]+$/', $name)) {
+      throw new Exception('Folder name must be "a-z0-9"');
+    }
     try {
-      mkdir(realpath($config['fs']['path']) . $path . '/' . $name, 0755, $recursive);
+      mkdir(Item::instance($path)->realPath . '/' . $name, 0755, $recursive);
     } catch (Throwable) {
     }
-    return Fs::info($path . '/' . $name);
+    return Item::instance($path . '/' . $name);
   }
 
   public static function deleteFolder(string $path): void
   {
-    if (!str_ends_with($path, '/')) {
-      $path .= '/';
-    }
+    $item = Item::instance($path);
+    self::deleteFolderRecursively($item->realPath);
+  }
 
-    $files = glob($path . '*', GLOB_MARK);
-
-    foreach ($files as $file) {
-
-      if (is_dir($file)) {
-        self::deleteFolder($file);
-
+  private static function deleteFolderRecursively(string $fullPath): void
+  {
+    foreach (glob($fullPath . '/*', GLOB_MARK) as $item) {
+      if (is_dir($item)) {
+        self::deleteFolderRecursively($item);
       } else {
-        unlink($file);
+        unlink($item);
       }
     }
+    rmdir($fullPath);
+  }
 
-    rmdir($path);
-
-    try {
-      $metadataFile = substr($path, 0, -1) . '.metadata';
-      unlink($metadataFile);
-    } catch (Throwable) {
+  public static function deleteFile(string $path): void
+  {
+    $item = Item::instance($path);
+    foreach (glob($item->dirName . '/' . $item->name . '_mod_*') as $mod) {
+      unlink($mod);
     }
+    unlink($item->realPath);
+    unlink($item->thumbnailRealPath);
   }
 
   private static function mapFiles(): array
@@ -80,14 +83,14 @@ class Fs
 
     $errors = [];
 
-    $config = Front::getInstance()->getConfig();
-
     foreach ($files as $file) {
       try {
         $fileNameParts = explode('.', $file['name']);
-        $fileName = md5(microtime()) . '.' . array_pop($fileNameParts);
+        $fileName = strtolower(md5(microtime()) . '.' . array_pop($fileNameParts));
 
-        copy($file['tmpName'], realpath($config['fs']['path']) . $path . '/' . $fileName);
+        $item = Item::instance($path);
+
+        copy($file['tmpName'], $item->realPath . '/' . $fileName);
       } catch (Throwable) {
         $errors[] = 'File "' . $file['name'] . '" was not uploaded.';
       }
@@ -108,7 +111,7 @@ class Fs
 
         copy($file['tmpName'], realpath($config['fs']['path']) . $path . '/' . $fileName);
 
-        $files[] = Fs::info($path . '/' . $fileName);
+        $files[] = Item::instance($path . '/' . $fileName);
 
       } catch (Throwable) {
       }
@@ -116,7 +119,7 @@ class Fs
     return $files;
   }
 
-  public static function uploadData(string $path, array $data): File
+  public static function uploadData(string $path, array $data): Item
   {
     $config = Front::getInstance()->getConfig();
 
@@ -133,15 +136,11 @@ class Fs
       file_put_contents($filePath, $data['data']);
     }
 
-    return Fs::info($path . '/' . $fileName);
+    return Item::instance($path . '/' . $fileName);
   }
 
-  public static function uploadByUrl(string $url, ?string $path = self::ROOT, ?string $name = null): File
+  public static function uploadByUrl(string $url, string $path = self::ROOT): Item
   {
-    if (!$name) {
-      $name = md5(microtime());
-    }
-
     $file = file_get_contents($url, false, stream_context_create([
       'ssl' => [
         'ciphers' => 'DEFAULT:!DH',
@@ -151,55 +150,40 @@ class Fs
       ]
     ]));
 
-    $config = Front::getInstance()->getConfig();
-
-    $path = array_filter(explode('/', $path));
-    $path = implode('/', $path);
-
-    $filePath = realpath($config['fs']['path']) . '/' . $path . '/';
-
-    if (!file_exists($filePath)) {
-      self::createFolder($path, self::ROOT, true);
+    try {
+      $item = Item::instance($path);
+    } catch (Throwable) {
+      $item = self::createFolder($path, self::ROOT, true);
     }
 
-    file_put_contents($filePath . $name, $file);
+    $fileId = md5(microtime());
+    $name = $item->realPath . '/' . $fileId;
+
+    file_put_contents($name, $file);
 
     $mimes = new MimeTypes();
-    $extension = $mimes->getExtension(mime_content_type($filePath . $name));
+    $extension = $mimes->getExtension(mime_content_type($name));
 
-    rename($filePath . $name, $filePath . $name . '.' . $extension);
+    rename($name, $name . '.' . $extension);
 
-    return self::info($path . '/' . $name . '.' . $extension);
+    return Item::instance($path . '/' . $fileId . '.' . $extension);
   }
 
-  public static function deleteFile(string $path): void
+  public static function listFolder(string $path = self::ROOT): array
   {
-    $config = Front::getInstance()->getConfig()['fs'];
-    $file = Fs::info($path);
-
-    if ($file->hasThumbnail()) {
-      unlink($config['path'] . $file->getThumbnailPath());
-    }
-    unlink($file->realPath);
-
-    try {
-      unlink($file->realPath . '.metadata');
-    } catch (Throwable) {
-    }
-  }
-
-  public static function listFolder(?string $path = self::ROOT): array
-  {
-    $config = Front::getInstance()->getConfig()['fs'];
     $items = [];
 
-    foreach (glob($config['path'] . $path . '/*') as $item) {
-      if (is_file($item) && str_contains(basename($item), '_mod') || str_ends_with(basename($item), '.metadata')) {
+    foreach (glob($path . '/*') as $item) {
+      if (
+        str_contains(basename($item), '_mod_') ||
+        str_contains(basename($item), '_thumbnail_') ||
+        str_ends_with(basename($item), '.metadata')
+      ) {
         continue;
       }
+
       $items[] = $item;
     }
-
     return self::prepareItems($items);
   }
 
@@ -213,115 +197,26 @@ class Fs
 
     /** @var SplFileInfo $file */
     foreach (new RecursiveIteratorIterator($it) as $file) {
-      if (str_contains(strtolower(basename($file->getRealPath())), strtolower($query))) {
+      if (
+        str_contains(strtolower(basename($file->getRealPath())), strtolower($query)) &&
+        !str_contains(strtolower(basename($file->getRealPath())), '_mod_') &&
+        !str_contains(strtolower(basename($file->getRealPath())), '_thumbnail_') &&
+        !str_ends_with(strtolower(basename($file->getRealPath())), '.metadata')
+      ) {
         $items[] = $file->getRealPath();
       }
     }
-
     return self::prepareItems($items);
   }
 
+  /**
+   * @param string[] $items
+   * @return Item[]
+   */
   public static function prepareItems(array $items): array
   {
     natcasesort($items);
-
-    $config = Front::getInstance()->getConfig()['fs'];
-
-    $files = [];
-    $folders = [];
-
-    foreach ($items as $item) {
-
-      if ($config['path'] . '//' . $config['thumbnails'] === $item) {
-        continue;
-      }
-
-      $metaDataFile = realpath($item) . '.metadata';
-
-      if (is_file($metaDataFile)) {
-        $info = json_decode(file_get_contents($metaDataFile), true);
-
-      } else {
-        $itemPath = substr(realpath($item), strlen(realpath($config['path'])));
-
-        $info = [
-          'name' => basename($item),
-          'path' => $itemPath,
-          'time' => filemtime(realpath($item)),
-          'mime' => mime_content_type(realpath($item)),
-          'realPath' => $item,
-          'dirName' => dirname($item)
-        ];
-
-        if (is_file($item)) {
-          $info['url'] = $config['url'] . $itemPath;
-          $info['size'] = filesize(realpath($item));
-
-          try {
-            $dims = getimagesize(realpath($item));
-
-            if ($dims) {
-              $info['dims'] = [
-                'width' => $dims[0],
-                'height' => $dims[1]
-              ];
-            }
-          } catch (Throwable) {
-          }
-        }
-
-        file_put_contents($metaDataFile, json_encode($info));
-      }
-
-      if (is_file($item)) {
-        $files[] = new File($info);
-
-      } else {
-        $folders[] = new Folder($info);
-      }
-    }
-
-    return [
-      'files' => $files,
-      'folders' => $folders
-    ];
-  }
-
-  public static function info(string $path): File|Folder
-  {
-    $config = Front::getInstance()->getConfig()['fs'];
-
-    $path = array_filter(explode('/', $path));
-    $path = implode('/', $path);
-
-    $fullPath = realpath($config['path'] . '/' . $path);
-
-    $info = [
-      'name' => basename($fullPath),
-      'path' => $path,
-      'time' => filemtime(realpath($fullPath)),
-      'mime' => mime_content_type($fullPath),
-      'realPath' => $fullPath,
-      'dirName' => dirname($fullPath)
-    ];
-
-    if (is_file($fullPath)) {
-      $info['size'] = filesize($fullPath);
-      $info['url'] = $config['url'] . '/' . $path;
-
-      try {
-        $dims = getimagesize($fullPath);
-        if ($dims) {
-          $info['dims'] = [
-            'width' => $dims[0],
-            'height' => $dims[1]
-          ];
-        }
-      } catch (Throwable) {
-      }
-      return new File($info);
-    }
-    return new Folder($info);
+    return array_map(fn(string $item) => Item::instance($item), $items);
   }
 
   public static function annotation(
@@ -330,15 +225,15 @@ class Fs
     string $title,
     string $backColor,
     string $frontColor
-  ): File
+  ): Item
   {
-    $im = new \Imagick();
+    $im = new Imagick();
     $im->newImage(500, 500, '#' . $backColor);
 
-    $textDraw = new \ImagickDraw();
+    $textDraw = new ImagickDraw();
     $textDraw->setFontSize(70);
     $textDraw->setFillColor('#' . $frontColor);
-    $textDraw->setGravity(\Imagick::ALIGN_CENTER);
+    $textDraw->setGravity(Imagick::ALIGN_CENTER);
     $im->annotateImage($textDraw, 0, 225, 0, $title);
     $im->setImageFormat("png");
 
@@ -346,6 +241,6 @@ class Fs
     $im->writeImage($config['path'] . '/' . $folder . '/' . $fileName . '.png');
     $im->destroy();
 
-    return self::info('/' . $folder . '/' . $fileName . '.png');
+    return Item::instance('/' . $folder . '/' . $fileName . '.png');
   }
 }

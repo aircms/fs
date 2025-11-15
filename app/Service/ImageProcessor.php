@@ -12,6 +12,8 @@ class ImageProcessor
   private Imagick $image;
   private string $format;
 
+  const array SUPPORTED_IMAGE_FORMATS = ['jpeg', 'jpg', 'png', 'webp', 'avif'];
+
   public function __construct(string $imagePath)
   {
     if (!file_exists($imagePath)) {
@@ -21,7 +23,7 @@ class ImageProcessor
     $this->image = new Imagick($imagePath);
     $this->format = strtolower($this->image->getImageFormat());
 
-    if (!in_array($this->format, ['jpeg', 'jpg', 'png', 'webp', 'avif'])) {
+    if (!in_array($this->format, self::SUPPORTED_IMAGE_FORMATS)) {
       throw new Exception("Unsupported image format: {$this->format}");
     }
 

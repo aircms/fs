@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\Fs;
+use App\Service\Item;
 use Throwable;
 
 class Index extends Base
@@ -48,8 +49,10 @@ class Index extends Base
   {
     $this->getView()->setAutoRender(true);
 
-    $this->getView()->assign('items', Fs::listFolder($path));
-    $this->getView()->assign('workingPath', $path);
+    $path = Item::instance($path);
+
+    $this->getView()->assign('items', Fs::listFolder($path->realPath));
+    $this->getView()->assign('workingPath', $path->path);
   }
 
   public function search(string $query): void
@@ -61,21 +64,14 @@ class Index extends Base
   public function removeMultiple(array $paths): void
   {
     foreach ($paths as $path) {
-      $item = Fs::info($path);
-
-      if ($item->mime === 'directory') {
-        Fs::deleteFolder($item->realPath);
-
-      } else {
-        Fs::deleteFile($path);
-      }
+      $item = Item::instance($path);
+      $item->isFile() ? Fs::deleteFile($path) : Fs::deleteFolder($path);
     }
   }
 
   public function deleteFolder(string $path): void
   {
-    $folder = Fs::info($path);
-    Fs::deleteFolder($folder->realPath);
+    Fs::deleteFolder($path);
   }
 
   public function deleteFile(string $path): void
