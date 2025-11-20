@@ -121,18 +121,20 @@ class Fs
 
   public static function uploadData(string $path, array $data): Item
   {
-    $config = Front::getInstance()->getConfig();
-
     if ($data['type'] === 'base64') {
+      $fileContent = base64_decode(explode('base64,', $data['data'])[1]);
       $fileName = explode(';', $data['data'])[0];
       $fileName = explode('/', $fileName)[1];
       $fileName = md5(microtime()) . '.' . trim($fileName);
-      $filePath = realpath($config['fs']['path']) . $path . '/' . $fileName;
-      file_put_contents($filePath, base64_decode(explode('base64,', $data['data'])[1]));
+
+      $filePath = Item::instance($path)->realPath . '/' . $fileName;
+
+      file_put_contents($filePath, $fileContent);
 
     } else {
       $fileName = md5(microtime()) . '.' . $data['type'];
-      $filePath = realpath($config['fs']['path']) . $path . '/' . $fileName;
+      $filePath = Item::instance($path)->realPath . '/' . $fileName;
+
       file_put_contents($filePath, $data['data']);
     }
 
@@ -217,6 +219,22 @@ class Fs
   {
     natcasesort($items);
     return array_map(fn(string $item) => Item::instance($item), $items);
+  }
+
+  public static function refactor(string $path, ?int $width = null, ?int $height = null, ?int $quality = null): void
+  {
+    $item = Item::instance($path);
+
+    $imageProcessor = new ImageProcessor($item->realPath);
+
+    if ($width && $height) {
+      $imageProcessor->cropAndResize($width, $height);
+
+    } elseif ($width || $height) {
+      $imageProcessor->resizeToLongSide($width ?? $height);
+    }
+
+    $imageProcessor->save($item->realPath, quality: $quality);
   }
 
   public static function annotation(

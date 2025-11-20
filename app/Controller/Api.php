@@ -61,8 +61,6 @@ class Api extends Base
 
   public function uploadDatum(string $path, array $datum): array
   {
-    Fs::createFolder($path, Fs::ROOT, true);
-
     $files = [];
     foreach ($datum as $index => $data) {
       try {
@@ -72,6 +70,12 @@ class Api extends Base
       }
     }
     return $files;
+  }
+
+  public function refactor(string $path, ?int $width = null, ?int $height = null, ?int $quality = null): void
+  {
+    ini_set('memory_limit', '-1');
+    Fs::refactor($path, $width, $height, $quality);
   }
 
   public function annotation(
